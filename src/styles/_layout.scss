@@ -1,0 +1,8 @@
+@use 'variables' as *;
+
+#root {
+  max-width: $max-width-container;
+  margin: 0 auto;
+  padding: $padding-base;
+  text-align: center;
+}

@@ -1,0 +1,32 @@
+// Color variables
+$color-primary: #646cff;
+$color-primary-hover: #535bf2;
+$color-primary-light: #747bff;
+
+$color-background-dark: #242424;
+$color-background-light: #ffffff;
+
+$color-text-dark: rgba(255, 255, 255, 0.87);
+$color-text-light: #213547;
+$color-text-muted: #888;
+
+$color-button-bg-dark: #1a1a1a;
+$color-button-bg-light: #f9f9f9;
+
+// Typography
+$font-family-base: system-ui, Avenir, Helvetica, Arial, sans-serif;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$line-height-base: 1.5;
+
+// Layout
+$max-width-container: 1280px;
+$padding-base: 2rem;
+$min-width-body: 320px;
+
+// Border radius
+$border-radius-base: 8px;
+
+// Transitions
+$transition-duration: 0.25s;
+$transition-duration-slow: 300ms;
