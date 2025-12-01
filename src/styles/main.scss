@@ -1,6 +1,6 @@
-@use 'fonts';
-@use 'variables';
-@use 'base';
-@use 'typography';
-@use 'utilities';
-@use 'header';
+@use 'util/fonts';
+@use 'util/variables';
+@use 'util/base';
+@use 'util/typography';
+@use 'util/utilities';
+@use 'components/Header';

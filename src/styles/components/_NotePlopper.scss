@@ -1,0 +1,23 @@
+@use '../util/variables' as *;
+
+.note-plopper-palette {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.note-plopper-tool-btn {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
+  &.active {
+    background-color: #007acc;
+    color: white;
+  }
+}
+
+.note-plopper-staff {
+  border: 1px solid #ccc;
+  cursor: crosshair;
+  touch-action: none;
+}
+
