@@ -1,6 +1,6 @@
-// Main entry point for styles
-// Import all partials in the correct order
-
+@use 'fonts';
 @use 'variables';
 @use 'base';
-@use 'layout';
+@use 'typography';
+@use 'utilities';
+@use 'header';

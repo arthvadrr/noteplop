@@ -1,0 +1,11 @@
+@use 'variables' as *;
+
+.utility__container {
+  display: flex;
+  justify-content: center;
+}
+
+.utility__content {
+  width: 100%;
+  max-width: $max-width-container;
+}
