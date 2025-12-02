@@ -1,3 +1,4 @@
+import NotePlopper from '../components/NotePlopper/NotePlopper';
 import type { ReactNode } from 'react';
 
 function Home(): ReactNode {
@@ -9,7 +10,7 @@ function Home(): ReactNode {
         </div>
       </header>
       <main>
-        <div>I need components</div>
+        <NotePlopper />
       </main>
     </div>
   )

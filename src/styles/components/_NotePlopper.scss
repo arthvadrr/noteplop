@@ -1,0 +1,40 @@
+@use '../util/variables' as *;
+
+.note-plopper-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.palette-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.palette-section-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.palette-section-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.note-plopper-tool-btn {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
+  &.active {
+    background-color: #007acc;
+    color: white;
+  }
+}
+
+.note-plopper-staff {
+  border: 1px solid #ccc;
+  cursor: crosshair;
+  touch-action: none;
+}
+
