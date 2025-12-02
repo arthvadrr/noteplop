@@ -64,6 +64,7 @@ function Staff({
   clef,
   showTimeSignature = true,
   showClef = true,
+  isActive = true,
   onPointerMove,
   onPointerLeave,
   onPointerDown,
@@ -112,10 +113,17 @@ function Staff({
       ref={svgRef}
       viewBox={`0 0 ${STAFF_WIDTH} ${STAFF_HEIGHT}`}
       className="note-plopper-staff"
+      width="100%"
+      height="auto"
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
-      style={{ touchAction: 'none' }}
+      style={{ 
+        touchAction: 'none',
+        opacity: isActive ? 1 : 0.4,
+        pointerEvents: isActive ? 'auto' : 'none',
+        display: 'block',
+      }}
     >
       {/* Clef */}
       {showClef && clef === 'treble' && <SVGTrebleClef />}

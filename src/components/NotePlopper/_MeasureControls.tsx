@@ -20,7 +20,7 @@ export default function MeasureControls({
         onClick={onAddMeasure}
         className="measure-controls__button measure-controls__button--add"
       >
-        Add Measure
+        Insert Measure
       </button>
       <button
         onClick={onDeleteMeasure}

@@ -44,7 +44,7 @@ interface ScoreContextValue {
   setActiveTrack: (trackId: string) => void;
 
   // Measure actions
-  addMeasure: (trackId: string, timeSignature: TimeSignature) => string;
+  addMeasure: (trackId: string, timeSignature: TimeSignature, afterMeasureId?: string) => string;
   deleteMeasure: (trackId: string, measureId: string) => void;
   setActiveMeasure: (measureId: string) => void;
   updateMeasureTimeSignature: (measureId: string, timeSignature: TimeSignature) => void;
@@ -230,7 +230,7 @@ export function ScoreProvider({ children }: { children: ReactNode }): ReactNode 
   /**
    * Measure actions
    */
-  function addMeasure(trackId: string, timeSignature: TimeSignature): string {
+  function addMeasure(trackId: string, timeSignature: TimeSignature, afterMeasureId?: string): string {
     const measureId = generateId('measure');
 
     setScores((prev) =>
@@ -239,19 +239,51 @@ export function ScoreProvider({ children }: { children: ReactNode }): ReactNode 
         tracks: score.tracks.map((track) => {
           if (track.id !== trackId) return track;
 
-          const newMeasureNumber = track.measures.length + 1;
-
-          return {
-            ...track,
-            measures: [
+          let newMeasures: typeof track.measures;
+          
+          if (afterMeasureId) {
+            // Insert after the specified measure
+            const insertIndex = track.measures.findIndex(m => m.id === afterMeasureId);
+            if (insertIndex >= 0) {
+              newMeasures = [
+                ...track.measures.slice(0, insertIndex + 1),
+                {
+                  id: measureId,
+                  number: insertIndex + 2, // Temporary, will be renumbered
+                  timeSignature,
+                  notes: [],
+                },
+                ...track.measures.slice(insertIndex + 1),
+              ];
+            } else {
+              // If not found, append at end
+              newMeasures = [
+                ...track.measures,
+                {
+                  id: measureId,
+                  number: track.measures.length + 1,
+                  timeSignature,
+                  notes: [],
+                },
+              ];
+            }
+          } else {
+            // Append at end (default behavior)
+            newMeasures = [
               ...track.measures,
               {
                 id: measureId,
-                number: newMeasureNumber,
+                number: track.measures.length + 1,
                 timeSignature,
                 notes: [],
               },
-            ],
+            ];
+          }
+
+          // Renumber all measures
+          return {
+            ...track,
+            measures: newMeasures.map((m, index) => ({ ...m, number: index + 1 })),
           };
         }),
       }))

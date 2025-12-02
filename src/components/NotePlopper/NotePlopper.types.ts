@@ -31,6 +31,7 @@ export interface StaffProps {
   clef: Clef;
   showTimeSignature?: boolean;
   showClef?: boolean;
+  isActive?: boolean;
   onPointerMove: (svgPoint: { x: number; y: number }) => void;
   onPointerLeave: () => void;
   onPointerDown: () => void;

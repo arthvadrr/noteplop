@@ -33,9 +33,23 @@
 }
 
 .note-plopper-staff {
-  border: 1px solid #ccc;
-  cursor: crosshair;
   touch-action: none;
+}
+
+.measure-carousel {
+  width: 100%;
+  position: relative;
+}
+
+.measure-track {
+  display: flex;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+.measure-slide {
+  flex-shrink: 0;
+  // Width set inline via style prop based on number of measures
 }
 
 .measure-indicator {
