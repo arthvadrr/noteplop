@@ -1,7 +1,8 @@
 import { useRef } from 'react';
+import { calculateDurationConnectors } from './_durationConnectorUtils';
+import { groupNotesForBeaming, getUnbeamedNotes } from './_beamingUtils';
 import NoteHead from './_NoteHead';
 import BeamGroup from './_BeamGroup';
-import { groupNotesForBeaming, getUnbeamedNotes } from './_beamingUtils';
 import SVGTrebleClef from './_SVGTrebleClef';
 import SVGBassClef from './_SVGBassClef';
 import SVGAltoClef from './_SVGAltoClef';
@@ -67,6 +68,8 @@ function Staff({
   showTimeSignature = true,
   showClef = true,
   isActive = true,
+  showDurationIndicators = false,
+  beatWidth = 0,
   onPointerMove,
   onPointerLeave,
   onPointerDown,
@@ -110,9 +113,19 @@ function Staff({
     onPointerDown();
   }
 
-  // Calculate beam groups for automatic beaming
+  /**
+   * Calculate beam groups for automatic beaming
+   */
   const beamGroups = groupNotesForBeaming(notes);
   const unbeamedNotes = getUnbeamedNotes(notes, beamGroups);
+
+  /**
+   * Calculate duration connectors for vertically aligned notes
+   * Only calculated when duration indicators are enabled
+   */
+  const durationConnectors = showDurationIndicators && beatWidth > 0
+    ? calculateDurationConnectors(notes, ghostNote)
+    : [];
 
   // Calculate beam Y position and stem heights for each beam group
   const beamGroupData = beamGroups.map(group => {
@@ -202,6 +215,9 @@ function Staff({
           y={note.y}
           duration={note.duration}
           isGhost={false}
+          showDurationIndicator={showDurationIndicators}
+          beatWidth={beatWidth}
+          maxX={760}
           onPointerDown={() => onNotePointerDown(note.id)}
           onPointerEnter={() => onNotePointerEnter(note.id)}
           onPointerLeave={onNotePointerLeave}
@@ -221,6 +237,9 @@ function Staff({
               isGhost={false}
               hideFlag={true}
               stemHeight={stemHeight}
+              showDurationIndicator={showDurationIndicators}
+              beatWidth={beatWidth}
+              maxX={760}
               onPointerDown={() => onNotePointerDown(note.id)}
               onPointerEnter={() => onNotePointerEnter(note.id)}
               onPointerLeave={onNotePointerLeave}
@@ -241,8 +260,39 @@ function Staff({
           y={ghostNote.y}
           duration={ghostNote.duration}
           isGhost={true}
+          showDurationIndicator={showDurationIndicators}
+          beatWidth={beatWidth}
+          maxX={760}
         />
       )}
+
+      {/* Duration connectors for vertically aligned notes */}
+      {durationConnectors.map((connector, index) => {
+        /**
+         * Skip rendering if notes are at same Y position
+         */
+        if (connector.y1 === connector.y2) return null;
+
+        /**
+         * Determine if the second note is above or below the first
+         * If y2 < y1, the second note is above (Y increases downward)
+         */
+        const isAbove = connector.y2 < connector.y1;
+
+        return (
+          <line
+            key={`duration-connector-${index}`}
+            x1={connector.x - 6}
+            y1={isAbove ? connector.y1 + 6 : connector.y1 - 6}
+            x2={connector.x - 6}
+            y2={isAbove ? connector.y2 - 6 : connector.y2 + 6}
+            stroke={connector.color}
+            strokeWidth={12}
+            opacity={0.5}
+            style={{ pointerEvents: 'none' }}
+          />
+        );
+      })}
     </svg>
   );
 }

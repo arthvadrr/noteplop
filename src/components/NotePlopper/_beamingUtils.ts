@@ -30,9 +30,12 @@ export function groupNotesForBeaming(notes: PlacedNote[]): PlacedNote[][] {
       const lastNote = currentGroup[currentGroup.length - 1];
       const xDistance = note.x - lastNote.x;
       
-      // Group notes that are close together (within ~2 grid spaces)
-      // This prevents beaming notes that are far apart
-      const MAX_BEAM_DISTANCE = 70; // Approximately 2 sixteenth note positions
+      /**
+       * Group notes that are close together
+       * This prevents beaming notes that are far apart
+       * Max distance allows for up to 2 grid spaces apart (accommodates wider spacing in non-first measures)
+       */
+      const MAX_BEAM_DISTANCE = 100;
       
       if (xDistance <= MAX_BEAM_DISTANCE) {
         currentGroup.push(note);

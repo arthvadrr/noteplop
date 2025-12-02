@@ -32,6 +32,8 @@ export interface StaffProps {
   showTimeSignature?: boolean;
   showClef?: boolean;
   isActive?: boolean;
+  showDurationIndicators?: boolean;
+  beatWidth?: number;
   onPointerMove: (svgPoint: { x: number; y: number }) => void;
   onPointerLeave: () => void;
   onPointerDown: () => void;
@@ -62,6 +64,9 @@ export interface NoteHeadProps {
   isGhost?: boolean;
   hideFlag?: boolean;
   stemHeight?: number;
+  showDurationIndicator?: boolean;
+  beatWidth?: number;
+  maxX?: number;
   onPointerDown?: () => void;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;

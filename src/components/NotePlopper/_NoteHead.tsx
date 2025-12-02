@@ -21,6 +21,32 @@ const NOTE_STROKE_WIDTHS = {
 } as const;
 
 /**
+ * Duration indicator configuration
+ * Colors provide visual distinction for each note duration
+ */
+const DURATION_COLORS = {
+  whole: '#4A90E2',
+  half: '#50C878',
+  quarter: '#F5A623',
+  eighth: '#FF6B35',
+  sixteenth: '#E83F6F',
+} as const;
+
+/**
+ * Beat durations for calculating indicator line lengths
+ */
+const BEAT_DURATIONS = {
+  whole: 4,
+  half: 2,
+  quarter: 1,
+  eighth: 0.5,
+  sixteenth: 0.25,
+} as const;
+
+const INDICATOR_THICKNESS = 12;
+const INDICATOR_OPACITY = 0.5;
+
+/**
  * Staff configuration for ledger line calculation
  */
 const TOP_STAFF_LINE = 250;
@@ -63,7 +89,7 @@ function calculateLedgerLines(y: number): number[] {
   return ledgerPositions;
 }
 
-function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
+function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, showDurationIndicator = false, beatWidth = 0, maxX = 760, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
   const opacity = isGhost ? 0.5 : 1;
   const radius = 24;
   const fillStyle = NOTE_FILL_STYLES[duration];
@@ -73,6 +99,14 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
 
   // Use custom stem height if provided, otherwise default to 120
   const actualStemHeight = stemHeight ?? 120;
+
+  /**
+   * Calculate duration indicator line end position
+   * Line extends from center of note head rightward, clamped to measure boundary
+   */
+  const durationLineEndX = showDurationIndicator && beatWidth > 0
+    ? Math.min(x + (BEAT_DURATIONS[duration] * beatWidth), maxX)
+    : 0;
 
   function handlePointerDown(event: React.PointerEvent): void {
     if (onPointerDown) {
@@ -136,6 +170,20 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
         strokeWidth={strokeWidth}
         style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
       />
+
+      {/* Duration indicator line */}
+      {showDurationIndicator && beatWidth > 0 && durationLineEndX > x && (
+        <line
+          x1={x}
+          y1={y}
+          x2={durationLineEndX}
+          y2={y}
+          stroke={DURATION_COLORS[duration]}
+          strokeWidth={INDICATOR_THICKNESS}
+          opacity={INDICATOR_OPACITY}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
 
       {/* Stem for half, quarter, eighth, and sixteenth notes */}
       {(duration === 'half' || duration === 'quarter' || duration === 'eighth' || duration === 'sixteenth') && (

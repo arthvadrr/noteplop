@@ -4,6 +4,7 @@ import MeasureNavigation, { MeasureIndicator } from './_MeasureNavigation';
 import MeasureControls from './_MeasureControls';
 import MeasureCarousel from './_MeasureCarousel';
 import ToolPalette from './_ToolPalette';
+import Toggle from '../common/Toggle';
 import Staff from './_Staff';
 import type { NoteDuration, TimeSignature, Clef } from '../../contexts/ScoreContext/ScoreContext.types';
 import type { ReactNode } from 'react';
@@ -175,18 +176,31 @@ function NotePlopper(): ReactNode {
   const [ghostNote, setGhostNote] = useState<GhostNote | null>(null);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
+  const [showDurationIndicators, setShowDurationIndicators] = useState<boolean>(true);
 
 
   if (!activeMeasure || !activeTrack) {
     return <div>No active measure</div>;
   }
 
-  // Extract from context (activeMeasure and activeTrack are guaranteed non-null here)
+  /**
+   * Extract from context (activeMeasure and activeTrack are guaranteed non-null here)
+   */
   const measures = activeTrack.measures;
   const measureId = activeMeasure.id;
   const notes = activeMeasure.notes;
   const selectedTimeSignature = activeMeasure.timeSignature;
   const selectedClef = activeMeasure.clef || 'treble';
+
+  /**
+   * Calculate beat width for duration indicators
+   * Based on time signature and measure boundaries
+   */
+  const isFirstMeasure = activeMeasure.number === 1;
+  const minX = getMinX(isFirstMeasure);
+  const maxX = getMaxX();
+  const beatsInMeasure = parseInt(selectedTimeSignature.split('/')[0]);
+  const beatWidth = (maxX - minX) / beatsInMeasure;
 
   /**
    * Active noteDuration is either the existing hovered note's noteDuration or the selected noteDuration
@@ -407,7 +421,6 @@ function NotePlopper(): ReactNode {
       setActiveMeasure(previousMeasureId);
     }
   } const totalMeasures = activeTrack?.measures.length || 0;
-  const isFirstMeasure = activeMeasure.number === 1;
 
   return (
     <div className="note-plopper utility__container">
@@ -419,6 +432,11 @@ function NotePlopper(): ReactNode {
           onSelectDuration={handleSelectDuration}
           onSelectTimeSignature={handleSelectTimeSignature}
           onSelectClef={handleSelectClef}
+        />
+        <Toggle
+          label="Show Duration Indicators"
+          checked={showDurationIndicators}
+          onChange={setShowDurationIndicators}
         />
         <MeasureIndicator
           currentMeasureNumber={activeMeasure.number}
@@ -434,6 +452,8 @@ function NotePlopper(): ReactNode {
               showTimeSignature={measure.number === 1}
               showClef={measure.number === 1}
               isActive={isActive}
+              showDurationIndicators={showDurationIndicators}
+              beatWidth={beatWidth}
               onPointerMove={isActive ? handlePointerMove : () => { }}
               onPointerLeave={isActive ? handlePointerLeave : () => { }}
               onPointerDown={isActive ? handlePointerDown : () => { }}
