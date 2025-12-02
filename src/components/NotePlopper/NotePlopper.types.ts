@@ -4,6 +4,16 @@
 export type NoteDuration = "whole" | "half" | "quarter" | "eighth";
 
 /**
+ * Time signature types
+ */
+export type TimeSignature = "4/4" | "3/4" | "6/8" | "2/4";
+
+/**
+ * Clef types
+ */
+export type Clef = "treble" | "bass" | "alto";
+
+/**
  * Represents a placed note on the staff
  */
 export interface PlacedNote {
@@ -40,6 +50,8 @@ export interface StaffConfig {
 export interface StaffProps {
   notes: PlacedNote[];
   ghostNote: GhostNote | null;
+  timeSignature: TimeSignature;
+  clef: Clef;
   onPointerMove: (svgPoint: { x: number; y: number }) => void;
   onPointerLeave: () => void;
   onPointerDown: () => void;
@@ -53,7 +65,11 @@ export interface StaffProps {
  */
 export interface ToolPaletteProps {
   selectedDuration: NoteDuration | null;
-  onSelect: (duration: NoteDuration) => void;
+  selectedTimeSignature: TimeSignature;
+  selectedClef: Clef;
+  onSelectDuration: (duration: NoteDuration) => void;
+  onSelectTimeSignature: (timeSignature: TimeSignature) => void;
+  onSelectClef: (clef: Clef) => void;
 }
 
 /**

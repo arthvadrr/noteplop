@@ -4,6 +4,8 @@ import Staff from './_Staff';
 import type { ReactNode } from 'react';
 import type {
   NoteDuration,
+  TimeSignature,
+  Clef,
   PlacedNote,
   GhostNote
 } from './NotePlopper.types';
@@ -63,6 +65,7 @@ const SNAP_POINTS = [
   ...LEDGER_SPACE_POSITIONS,
 ].sort((a, b) => a - b);
 const GRID_SIZE = 30;
+const MIN_X = 240; // Minimum X coordinate for note placement (after time signature)
 
 /**
  * Snaps a Y coordinate to the nearest staff line or space
@@ -77,7 +80,8 @@ function snapToStaff(y: number): number {
  * Snaps an X coordinate to the grid
  */
 function snapToGrid(x: number): number {
-  return Math.round(x / GRID_SIZE) * GRID_SIZE;
+  const snapped = Math.round(x / GRID_SIZE) * GRID_SIZE;
+  return Math.max(snapped, MIN_X);
 }
 
 /**
@@ -91,6 +95,8 @@ function generateNoteId(): string {
 
 function NotePlopper(): ReactNode {
   const [selectedDuration, setSelectedDuration] = useState<NoteDuration | null>(null);
+  const [selectedTimeSignature, setSelectedTimeSignature] = useState<TimeSignature>('4/4');
+  const [selectedClef, setSelectedClef] = useState<Clef>('treble');
   const [notes, setNotes] = useState<PlacedNote[]>([]);
   const [ghostNote, setGhostNote] = useState<GhostNote | null>(null);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
@@ -114,6 +120,20 @@ function NotePlopper(): ReactNode {
    */
   function handleSelectDuration(duration: NoteDuration): void {
     setSelectedDuration(duration);
+  }
+
+  /**
+   * Handles selection of time signature
+   */
+  function handleSelectTimeSignature(timeSignature: TimeSignature): void {
+    setSelectedTimeSignature(timeSignature);
+  }
+
+  /**
+   * Handles selection of clef
+   */
+  function handleSelectClef(clef: Clef): void {
+    setSelectedClef(clef);
   }
 
   /**
@@ -254,11 +274,17 @@ function NotePlopper(): ReactNode {
         <h2>Note Plopper</h2>
         <ToolPalette
           selectedDuration={selectedDuration}
-          onSelect={handleSelectDuration}
+          selectedTimeSignature={selectedTimeSignature}
+          selectedClef={selectedClef}
+          onSelectDuration={handleSelectDuration}
+          onSelectTimeSignature={handleSelectTimeSignature}
+          onSelectClef={handleSelectClef}
         />
         <Staff
           notes={notes}
           ghostNote={ghostNote}
+          timeSignature={selectedTimeSignature}
+          clef={selectedClef}
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
           onPointerDown={handlePointerDown}

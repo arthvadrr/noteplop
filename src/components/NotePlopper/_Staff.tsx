@@ -1,7 +1,10 @@
 import { useRef } from 'react';
 import NoteHead from './_NoteHead';
+import SVGTrebleClef from './_SVGTrebleClef';
+import SVGBassClef from './_SVGBassClef';
+import SVGAltoClef from './_SVGAltoClef';
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react';
-import type { StaffProps } from './NotePlopper.types';
+import type { StaffProps, TimeSignature } from './NotePlopper.types';
 
 /**
  * Staff configuration
@@ -17,6 +20,38 @@ const STAFF_LINE_POSITIONS = [
 ];
 
 /**
+ * Renders time signature as two stacked numbers
+ */
+function renderTimeSignature(timeSignature: TimeSignature, x: number, y: number): ReactNode {
+  const [top, bottom] = timeSignature.split('/');
+
+  return (
+    <g>
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        fontSize="72"
+        fontWeight="bold"
+        textAnchor="middle"
+      >
+        {top}
+      </text>
+      <text
+        x={x}
+        y={y + 72}
+        fill="white"
+        fontSize="72"
+        fontWeight="bold"
+        textAnchor="middle"
+      >
+        {bottom}
+      </text>
+    </g>
+  );
+}
+
+/**
  * Pure presentational SVG staff component
  * Renders musical staff lines, placed notes, and ghost note
  * Handles pointer events and converts to SVG coordinates
@@ -24,6 +59,8 @@ const STAFF_LINE_POSITIONS = [
 function Staff({
   notes,
   ghostNote,
+  timeSignature,
+  clef,
   onPointerMove,
   onPointerLeave,
   onPointerDown,
@@ -77,6 +114,14 @@ function Staff({
       onPointerUp={handlePointerUp}
       style={{ touchAction: 'none' }}
     >
+      {/* Clef */}
+      {clef === 'treble' && <SVGTrebleClef />}
+      {clef === 'bass' && <SVGBassClef />}
+      {clef === 'alto' && <SVGAltoClef />}
+
+      {/* Time Signature */}
+      {renderTimeSignature(timeSignature, 180, 390)}
+
       {/* Staff lines */}
       {STAFF_LINE_POSITIONS.map((y, index) => (
         <line
@@ -90,6 +135,28 @@ function Staff({
           opacity={0.8}
         />
       ))}
+
+      {/* Left bar line */}
+      <line
+        x1={0}
+        y1={STAFF_LINE_POSITIONS[0]}
+        x2={0}
+        y2={STAFF_LINE_POSITIONS[4]}
+        stroke="currentColor"
+        strokeWidth={4}
+        opacity={0.8}
+      />
+
+      {/* Right bar line */}
+      <line
+        x1={STAFF_WIDTH}
+        y1={STAFF_LINE_POSITIONS[0]}
+        x2={STAFF_WIDTH}
+        y2={STAFF_LINE_POSITIONS[4]}
+        stroke="currentColor"
+        strokeWidth={4}
+        opacity={0.8}
+      />
 
       {/* Placed notes */}
       {notes.map((note) => (
