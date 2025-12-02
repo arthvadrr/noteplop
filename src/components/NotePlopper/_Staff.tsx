@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 import NoteHead from './_NoteHead';
+import BeamGroup from './_BeamGroup';
+import { groupNotesForBeaming, getUnbeamedNotes } from './_beamingUtils';
 import SVGTrebleClef from './_SVGTrebleClef';
 import SVGBassClef from './_SVGBassClef';
 import SVGAltoClef from './_SVGAltoClef';
@@ -108,6 +110,29 @@ function Staff({
     onPointerDown();
   }
 
+  // Calculate beam groups for automatic beaming
+  const beamGroups = groupNotesForBeaming(notes);
+  const unbeamedNotes = getUnbeamedNotes(notes, beamGroups);
+
+  // Calculate beam Y position and stem heights for each beam group
+  const beamGroupData = beamGroups.map(group => {
+    // Find the highest note in the group (smallest Y value)
+    const highestNoteY = Math.min(...group.map(note => note.y));
+    const defaultStemHeight = 120;
+    const beamY = highestNoteY - defaultStemHeight;
+
+    // Calculate custom stem height for each note to reach the beam
+    const notesWithStemHeights = group.map(note => ({
+      note,
+      stemHeight: note.y - beamY
+    }));
+
+    return {
+      notes: notesWithStemHeights,
+      beamY
+    };
+  });
+
   return (
     <svg
       ref={svgRef}
@@ -118,7 +143,7 @@ function Staff({
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
-      style={{ 
+      style={{
         touchAction: 'none',
         opacity: isActive ? 1 : 0.4,
         pointerEvents: isActive ? 'auto' : 'none',
@@ -170,7 +195,7 @@ function Staff({
       />
 
       {/* Placed notes */}
-      {notes.map((note) => (
+      {unbeamedNotes.map((note) => (
         <NoteHead
           key={note.id}
           x={note.x}
@@ -181,6 +206,32 @@ function Staff({
           onPointerEnter={() => onNotePointerEnter(note.id)}
           onPointerLeave={onNotePointerLeave}
         />
+      ))}
+
+      {/* Beamed note groups */}
+      {beamGroupData.map((groupData, index) => (
+        <g key={`beam-group-${index}`}>
+          {/* Render stems and note heads without flags, with custom stem heights */}
+          {groupData.notes.map(({ note, stemHeight }) => (
+            <NoteHead
+              key={note.id}
+              x={note.x}
+              y={note.y}
+              duration={note.duration}
+              isGhost={false}
+              hideFlag={true}
+              stemHeight={stemHeight}
+              onPointerDown={() => onNotePointerDown(note.id)}
+              onPointerEnter={() => onNotePointerEnter(note.id)}
+              onPointerLeave={onNotePointerLeave}
+            />
+          ))}
+          {/* Render the beam */}
+          <BeamGroup
+            notes={groupData.notes.map(({ note }) => note)}
+            beamY={groupData.beamY}
+          />
+        </g>
       ))}
 
       {/* Ghost note */}

@@ -24,6 +24,7 @@ const NOTE_DURATIONS: Array<{ value: NoteDuration; label: string }> = [
   { value: 'half', label: 'Half' },
   { value: 'quarter', label: 'Quarter' },
   { value: 'eighth', label: 'Eighth' },
+  { value: 'sixteenth', label: 'Sixteenth' },
 ];
 
 /**

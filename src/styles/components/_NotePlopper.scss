@@ -106,6 +106,20 @@
       }
     }
 
+    &--reset {
+      background-color: #ffc107;
+      color: black;
+
+      &:hover:not(:disabled) {
+        background-color: #e0a800;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
     &--delete {
       background-color: #dc3545;
       color: white;

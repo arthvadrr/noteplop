@@ -1,7 +1,7 @@
 /**
  * Note duration types
  */
-export type NoteDuration = 'whole' | 'half' | 'quarter' | 'eighth';
+export type NoteDuration = 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
 
 /**
  * Time signature types

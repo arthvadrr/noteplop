@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 
 interface MeasureControlsProps {
   isFirstMeasure: boolean;
+  hasNotes: boolean;
   onAddMeasure: () => void;
+  onResetMeasure: () => void;
   onDeleteMeasure: () => void;
 }
 
@@ -11,7 +13,9 @@ interface MeasureControlsProps {
  */
 export default function MeasureControls({
   isFirstMeasure,
+  hasNotes,
   onAddMeasure,
+  onResetMeasure,
   onDeleteMeasure,
 }: MeasureControlsProps): ReactNode {
   return (
@@ -21,6 +25,13 @@ export default function MeasureControls({
         className="measure-controls__button measure-controls__button--add"
       >
         Insert Measure
+      </button>
+      <button
+        onClick={onResetMeasure}
+        disabled={!hasNotes}
+        className="measure-controls__button measure-controls__button--reset"
+      >
+        Reset Measure
       </button>
       <button
         onClick={onDeleteMeasure}

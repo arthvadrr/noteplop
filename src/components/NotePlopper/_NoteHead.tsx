@@ -9,6 +9,7 @@ const NOTE_FILL_STYLES = {
   half: 'none',
   quarter: 'white',
   eighth: 'white',
+  sixteenth: 'white',
 } as const;
 
 const NOTE_STROKE_WIDTHS = {
@@ -16,6 +17,7 @@ const NOTE_STROKE_WIDTHS = {
   half: 6,
   quarter: 5,
   eighth: 5,
+  sixteenth: 5,
 } as const;
 
 /**
@@ -61,13 +63,16 @@ function calculateLedgerLines(y: number): number[] {
   return ledgerPositions;
 }
 
-function NoteHead({ x, y, duration, isGhost = false, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
+function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
   const opacity = isGhost ? 0.5 : 1;
   const radius = 24;
   const fillStyle = NOTE_FILL_STYLES[duration];
   const strokeWidth = NOTE_STROKE_WIDTHS[duration];
   const strokeColor = isGhost ? 'rgba(255, 255, 255, 0.5)' : 'white';
   const ledgerLines = calculateLedgerLines(y);
+
+  // Use custom stem height if provided, otherwise default to 120
+  const actualStemHeight = stemHeight ?? 120;
 
   function handlePointerDown(event: React.PointerEvent): void {
     if (onPointerDown) {
@@ -132,29 +137,55 @@ function NoteHead({ x, y, duration, isGhost = false, onPointerDown, onPointerEnt
         style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
       />
 
-      {/* Stem for half, quarter, and eighth notes */}
-      {(duration === 'half' || duration === 'quarter' || duration === 'eighth') && (
+      {/* Stem for half, quarter, eighth, and sixteenth notes */}
+      {(duration === 'half' || duration === 'quarter' || duration === 'eighth' || duration === 'sixteenth') && (
         <line
           x1={x + radius}
           y1={y}
           x2={x + radius}
-          y2={y - 120}
+          y2={y - actualStemHeight}
           stroke={strokeColor}
           strokeWidth={6}
         />
       )}
 
-      {/* Flag for eighth notes */}
-      {duration === 'eighth' && (
+      {/* Flag for eighth notes (single flag) */}
+      {duration === 'eighth' && !hideFlag && (
         <line
           x1={x + radius}
-          y1={y - 120}
+          y1={y - actualStemHeight}
           x2={x + radius + 24}
-          y2={y - 90}
+          y2={y - actualStemHeight + 30}
           stroke={strokeColor}
           strokeWidth={7}
           style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
         />
+      )}
+
+      {/* Flags for sixteenth notes (double flag) */}
+      {duration === 'sixteenth' && !hideFlag && (
+        <>
+          {/* First flag */}
+          <line
+            x1={x + radius}
+            y1={y - actualStemHeight}
+            x2={x + radius + 24}
+            y2={y - actualStemHeight + 30}
+            stroke={strokeColor}
+            strokeWidth={7}
+            style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
+          />
+          {/* Second flag */}
+          <line
+            x1={x + radius}
+            y1={y - actualStemHeight + 20}
+            x2={x + radius + 24}
+            y2={y - actualStemHeight + 50}
+            stroke={strokeColor}
+            strokeWidth={7}
+            style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
+          />
+        </>
       )}
     </g>
   );

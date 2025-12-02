@@ -11,50 +11,89 @@ import type { GhostNote } from './NotePlopper.types';
 
 /**
  * Staff configuration constants
+ * LINE_SPACING: Distance between staff lines and ledger lines
+ * STAFF_LINE_POSITIONS: Y coordinates for the 5 staff lines
+ *   - Line 1 (top staff line): 250
+ *   - Line 2: 325
+ *   - Line 3 (middle - centered in 800px height): 400
+ *   - Line 4: 475
+ *   - Line 5 (bottom staff line): 550
  */
-const LINE_SPACING = 75; // Distance between staff lines and ledger lines
+const LINE_SPACING = 75;
 const STAFF_LINE_POSITIONS = [
-  250,  // Line 1 (top staff line)
-  325,  // Line 2
-  400,  // Line 3 (middle - centered in 800px height)
-  475,  // Line 4
-  550,  // Line 5 (bottom staff line)
+  250,
+  325,
+  400,
+  475,
+  550,
 ];
 
-// Ledger line positions (4 above, 4 below)
+/**
+ * Ledger line positions above the staff
+ * 1st ledger above: 175
+ * 2nd ledger above: 100
+ * 3rd ledger above: 25
+ * 4th ledger above: -50
+ */
 const LEDGER_LINE_POSITIONS_ABOVE = [
-  250 - LINE_SPACING,     // 175 - 1st ledger above
-  250 - LINE_SPACING * 2, // 100 - 2nd ledger above
-  250 - LINE_SPACING * 3, // 25 - 3rd ledger above
-  250 - LINE_SPACING * 4, // -50 - 4th ledger above
+  250 - LINE_SPACING,
+  250 - LINE_SPACING * 2,
+  250 - LINE_SPACING * 3,
+  250 - LINE_SPACING * 4,
 ];
 
+/**
+ * Ledger line positions below the staff
+ * 1st ledger below: 625
+ * 2nd ledger below: 700
+ * 3rd ledger below: 775
+ * 4th ledger below: 850 (outside viewbox, but we'll expand)
+ */
 const LEDGER_LINE_POSITIONS_BELOW = [
-  550 + LINE_SPACING,     // 625 - 1st ledger below
-  550 + LINE_SPACING * 2, // 700 - 2nd ledger below
-  550 + LINE_SPACING * 3, // 775 - 3rd ledger below
-  550 + LINE_SPACING * 4, // 850 - 4th ledger below (outside viewbox, but we'll expand)
+  550 + LINE_SPACING,
+  550 + LINE_SPACING * 2,
+  550 + LINE_SPACING * 3,
+  550 + LINE_SPACING * 4,
 ];
 
+/**
+ * Staff space positions (spaces between lines)
+ * Space above top staff line: 212.5
+ * Space between lines 1 & 2: 287.5
+ * Space between lines 2 & 3: 362.5
+ * Space between lines 3 & 4: 437.5
+ * Space between lines 4 & 5: 512.5
+ * Space below bottom staff line: 587.5
+ */
 const STAFF_SPACE_POSITIONS = [
-  212.5,  // Space above top staff line
-  287.5,  // Space between lines 1 & 2
-  362.5,  // Space between lines 2 & 3
-  437.5,  // Space between lines 3 & 4
-  512.5,  // Space between lines 4 & 5
-  587.5,  // Space below bottom staff line
+  212.5,
+  287.5,
+  362.5,
+  437.5,
+  512.5,
+  587.5,
 ];
 
-// Ledger space positions
+/**
+ * Ledger space positions (spaces between ledger lines)
+ * Space between 1st ledger above and top staff line: 212.5
+ * Space between 1st and 2nd ledger above: 137.5
+ * Space between 2nd and 3rd ledger above: 62.5
+ * Space between 3rd and 4th ledger above: -12.5
+ * Space between bottom staff line and 1st ledger below: 587.5
+ * Space between 1st and 2nd ledger below: 662.5
+ * Space between 2nd and 3rd ledger below: 737.5
+ * Space between 3rd and 4th ledger below: 812.5
+ */
 const LEDGER_SPACE_POSITIONS = [
-  212.5,  // Space between 1st ledger above and top staff line
-  137.5,  // Space between 1st and 2nd ledger above
-  62.5,   // Space between 2nd and 3rd ledger above
-  -12.5,  // Space between 3rd and 4th ledger above
-  587.5,  // Space between bottom staff line and 1st ledger below
-  662.5,  // Space between 1st and 2nd ledger below
-  737.5,  // Space between 2nd and 3rd ledger below
-  812.5,  // Space between 3rd and 4th ledger below
+  212.5,
+  137.5,
+  62.5,
+  -12.5,
+  587.5,
+  662.5,
+  737.5,
+  812.5,
 ];
 const SNAP_POINTS = [
   ...STAFF_LINE_POSITIONS,
@@ -63,9 +102,14 @@ const SNAP_POINTS = [
   ...STAFF_SPACE_POSITIONS,
   ...LEDGER_SPACE_POSITIONS,
 ].sort((a, b) => a - b);
-const GRID_SIZE = 30;
-const MIN_X_FIRST_MEASURE = 240; // Minimum X coordinate for first measure (after clef/time signature)
-const MIN_X_OTHER_MEASURES = 30; // Minimum X coordinate for other measures (no clef/time signature)
+
+/**
+ * Minimum X coordinates for note placement
+ * MIN_X_FIRST_MEASURE: Minimum X coordinate for first measure (after clef/time signature)
+ * MIN_X_OTHER_MEASURES: Minimum X coordinate for other measures (no clef/time signature)
+ */
+const MIN_X_FIRST_MEASURE = 240;
+const MIN_X_OTHER_MEASURES = 40;
 
 /**
  * Gets the minimum X coordinate based on whether it's the first measure
@@ -75,15 +119,12 @@ function getMinX(isFirstMeasure: boolean): number {
 }
 
 /**
- * Calculates the maximum X coordinate based on time signature
- * Each beat gets a certain amount of horizontal space
- * Note: Returns consistent width for all measures regardless of isFirstMeasure
+ * Calculates the maximum X coordinate for note placement
+ * Returns 760 to prevent notes from clipping at the right bar line
+ * This leaves 40px of space for the note head and stem before the bar line at 800
  */
-function getMaxX(timeSignature: TimeSignature): number {
-  const beats = parseInt(timeSignature.split('/')[0]);
-  const spacePerBeat = 120; // Horizontal space allocated per beat
-  // Use MIN_X_FIRST_MEASURE for consistent measure width across all measures
-  return MIN_X_FIRST_MEASURE + (beats * spacePerBeat);
+function getMaxX(): number {
+  return 760;
 }
 
 /**
@@ -97,12 +138,23 @@ function snapToStaff(y: number): number {
 
 /**
  * Snaps an X coordinate to the grid
+ * Creates exactly 16 evenly-spaced snap points (16th note resolution)
+ * Uses 15 divisions to create 16 snap points (including endpoints)
  */
-function snapToGrid(x: number, timeSignature: TimeSignature, isFirstMeasure: boolean): number {
-  const snapped = Math.round(x / GRID_SIZE) * GRID_SIZE;
+function snapToGrid(x: number, isFirstMeasure: boolean): number {
   const minX = getMinX(isFirstMeasure);
-  const maxX = getMaxX(timeSignature);
-  return Math.max(minX, Math.min(snapped, maxX));
+  const maxX = getMaxX();
+  const range = maxX - minX;
+  const divisions = 15;
+  const stepSize = range / divisions;
+
+  // Calculate which snap point is closest
+  const relativeX = x - minX;
+  const snapIndex = Math.round(relativeX / stepSize);
+  const snappedX = minX + (snapIndex * stepSize);
+
+  // Clamp to valid range
+  return Math.max(minX, Math.min(snappedX, maxX));
 }
 
 function NotePlopper(): ReactNode {
@@ -113,12 +165,13 @@ function NotePlopper(): ReactNode {
     updateMeasureClef,
     addNote,
     updateNote,
+    deleteNote,
     addMeasure,
     deleteMeasure,
     setActiveMeasure,
   } = useScore();
 
-  const [selectedDuration, setSelectedDuration] = useState<NoteDuration | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<NoteDuration | null>('quarter');
   const [ghostNote, setGhostNote] = useState<GhostNote | null>(null);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
@@ -205,7 +258,7 @@ function NotePlopper(): ReactNode {
    * Handles pointer movement over the staff, updating ghost note position
    */
   function handlePointerMove(svgPoint: { x: number; y: number }): void {
-    const snappedX = snapToGrid(svgPoint.x, selectedTimeSignature, isFirstMeasure);
+    const snappedX = snapToGrid(svgPoint.x, isFirstMeasure);
     const snappedY = snapToStaff(svgPoint.y);
 
     /**
@@ -325,6 +378,18 @@ function NotePlopper(): ReactNode {
   }
 
   /**
+   * Reset the current measure by removing all notes
+   */
+  function handleResetMeasure(): void {
+    if (!activeMeasure) return;
+
+    // Delete all notes in the current measure
+    activeMeasure.notes.forEach(note => {
+      deleteNote(measureId, note.id);
+    });
+  }
+
+  /**
    * Delete the current measure
    */
   function handleDeleteMeasure(): void {
@@ -336,20 +401,17 @@ function NotePlopper(): ReactNode {
 
     // Delete the measure first
     deleteMeasure(activeTrack.id, measureId);
-    
+
     // Then navigate to previous measure
     if (previousMeasureId) {
       setActiveMeasure(previousMeasureId);
     }
-  }
-
-  const totalMeasures = activeTrack?.measures.length || 0;
+  } const totalMeasures = activeTrack?.measures.length || 0;
   const isFirstMeasure = activeMeasure.number === 1;
 
   return (
     <div className="note-plopper utility__container">
       <div className="utility__content">
-        <h2>Note Plopper</h2>
         <ToolPalette
           selectedDuration={selectedDuration}
           selectedTimeSignature={selectedTimeSignature}
@@ -389,7 +451,9 @@ function NotePlopper(): ReactNode {
         />
         <MeasureControls
           isFirstMeasure={isFirstMeasure}
+          hasNotes={notes.length > 0}
           onAddMeasure={handleAddMeasure}
+          onResetMeasure={handleResetMeasure}
           onDeleteMeasure={handleDeleteMeasure}
         />
         {/* Debug info */}

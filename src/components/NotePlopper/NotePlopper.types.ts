@@ -60,6 +60,8 @@ export interface NoteHeadProps {
   y: number;
   duration: NoteDuration;
   isGhost?: boolean;
+  hideFlag?: boolean;
+  stemHeight?: number;
   onPointerDown?: () => void;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
