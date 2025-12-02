@@ -4,7 +4,8 @@ import SVGTrebleClef from './_SVGTrebleClef';
 import SVGBassClef from './_SVGBassClef';
 import SVGAltoClef from './_SVGAltoClef';
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react';
-import type { StaffProps, TimeSignature } from './NotePlopper.types';
+import type { TimeSignature } from '../../contexts/ScoreContext/ScoreContext.types';
+import type { StaffProps } from './NotePlopper.types';
 
 /**
  * Staff configuration
@@ -61,6 +62,9 @@ function Staff({
   ghostNote,
   timeSignature,
   clef,
+  showTimeSignature = true,
+  showClef = true,
+  isActive = true,
   onPointerMove,
   onPointerLeave,
   onPointerDown,
@@ -109,18 +113,25 @@ function Staff({
       ref={svgRef}
       viewBox={`0 0 ${STAFF_WIDTH} ${STAFF_HEIGHT}`}
       className="note-plopper-staff"
+      width="100%"
+      height="auto"
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
-      style={{ touchAction: 'none' }}
+      style={{ 
+        touchAction: 'none',
+        opacity: isActive ? 1 : 0.4,
+        pointerEvents: isActive ? 'auto' : 'none',
+        display: 'block',
+      }}
     >
       {/* Clef */}
-      {clef === 'treble' && <SVGTrebleClef />}
-      {clef === 'bass' && <SVGBassClef />}
-      {clef === 'alto' && <SVGAltoClef />}
+      {showClef && clef === 'treble' && <SVGTrebleClef />}
+      {showClef && clef === 'bass' && <SVGBassClef />}
+      {showClef && clef === 'alto' && <SVGAltoClef />}
 
       {/* Time Signature */}
-      {renderTimeSignature(timeSignature, 180, 390)}
+      {showTimeSignature && renderTimeSignature(timeSignature, 180, 390)}
 
       {/* Staff lines */}
       {STAFF_LINE_POSITIONS.map((y, index) => (

@@ -1,27 +1,4 @@
-/**
- * Note duration types supported by the Note Plop application
- */
-export type NoteDuration = "whole" | "half" | "quarter" | "eighth";
-
-/**
- * Time signature types
- */
-export type TimeSignature = "4/4" | "3/4" | "6/8" | "2/4";
-
-/**
- * Clef types
- */
-export type Clef = "treble" | "bass" | "alto";
-
-/**
- * Represents a placed note on the staff
- */
-export interface PlacedNote {
-  id: string;
-  x: number;
-  y: number;
-  duration: NoteDuration;
-}
+import type { NoteDuration, TimeSignature, Clef, PlacedNote } from '../../contexts/ScoreContext/ScoreContext.types';
 
 /**
  * Represents the ghost note that follows the pointer
@@ -52,6 +29,9 @@ export interface StaffProps {
   ghostNote: GhostNote | null;
   timeSignature: TimeSignature;
   clef: Clef;
+  showTimeSignature?: boolean;
+  showClef?: boolean;
+  isActive?: boolean;
   onPointerMove: (svgPoint: { x: number; y: number }) => void;
   onPointerLeave: () => void;
   onPointerDown: () => void;
@@ -84,3 +64,4 @@ export interface NoteHeadProps {
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
 }
+
