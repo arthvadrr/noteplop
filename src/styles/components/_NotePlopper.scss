@@ -38,3 +38,72 @@
   touch-action: none;
 }
 
+.measure-indicator {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.measure-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+
+  &__button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    &:hover:not(:disabled) {
+      background-color: #e0e0e0;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.measure-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+
+  &__button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    &--add {
+      background-color: #28a745;
+      color: white;
+
+      &:hover {
+        background-color: #218838;
+      }
+    }
+
+    &--delete {
+      background-color: #dc3545;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #c82333;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

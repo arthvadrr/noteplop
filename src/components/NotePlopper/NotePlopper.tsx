@@ -1,14 +1,12 @@
 import { useState } from 'react';
+import { useScore } from '../../contexts/ScoreContext/ScoreContext';
 import ToolPalette from './_ToolPalette';
 import Staff from './_Staff';
+import MeasureNavigation, { MeasureIndicator } from './_MeasureNavigation';
+import MeasureControls from './_MeasureControls';
+import type { NoteDuration, TimeSignature, Clef } from '../../contexts/ScoreContext/ScoreContext.types';
 import type { ReactNode } from 'react';
-import type {
-  NoteDuration,
-  TimeSignature,
-  Clef,
-  PlacedNote,
-  GhostNote
-} from './NotePlopper.types';
+import type { GhostNote } from './NotePlopper.types';
 
 /**
  * Staff configuration constants
@@ -65,7 +63,26 @@ const SNAP_POINTS = [
   ...LEDGER_SPACE_POSITIONS,
 ].sort((a, b) => a - b);
 const GRID_SIZE = 30;
-const MIN_X = 240; // Minimum X coordinate for note placement (after time signature)
+const MIN_X_FIRST_MEASURE = 240; // Minimum X coordinate for first measure (after clef/time signature)
+const MIN_X_OTHER_MEASURES = 30; // Minimum X coordinate for other measures (no clef/time signature)
+
+/**
+ * Gets the minimum X coordinate based on whether it's the first measure
+ */
+function getMinX(isFirstMeasure: boolean): number {
+  return isFirstMeasure ? MIN_X_FIRST_MEASURE : MIN_X_OTHER_MEASURES;
+}
+
+/**
+ * Calculates the maximum X coordinate based on time signature
+ * Each beat gets a certain amount of horizontal space
+ */
+function getMaxX(timeSignature: TimeSignature, isFirstMeasure: boolean): number {
+  const beats = parseInt(timeSignature.split('/')[0]);
+  const spacePerBeat = 120; // Horizontal space allocated per beat
+  const minX = getMinX(isFirstMeasure);
+  return minX + (beats * spacePerBeat);
+}
 
 /**
  * Snaps a Y coordinate to the nearest staff line or space
@@ -79,28 +96,41 @@ function snapToStaff(y: number): number {
 /**
  * Snaps an X coordinate to the grid
  */
-function snapToGrid(x: number): number {
+function snapToGrid(x: number, timeSignature: TimeSignature, isFirstMeasure: boolean): number {
   const snapped = Math.round(x / GRID_SIZE) * GRID_SIZE;
-  return Math.max(snapped, MIN_X);
-}
-
-/**
- * Generates a unique ID for a note (simple counter-based approach)
- */
-let noteIdCounter = 0;
-
-function generateNoteId(): string {
-  return `note-${++noteIdCounter}`;
+  const minX = getMinX(isFirstMeasure);
+  const maxX = getMaxX(timeSignature, isFirstMeasure);
+  return Math.max(minX, Math.min(snapped, maxX));
 }
 
 function NotePlopper(): ReactNode {
+  const {
+    activeMeasure,
+    activeTrack,
+    updateMeasureTimeSignature,
+    updateMeasureClef,
+    addNote,
+    updateNote,
+    addMeasure,
+    deleteMeasure,
+    setActiveMeasure,
+  } = useScore();
+
   const [selectedDuration, setSelectedDuration] = useState<NoteDuration | null>(null);
-  const [selectedTimeSignature, setSelectedTimeSignature] = useState<TimeSignature>('4/4');
-  const [selectedClef, setSelectedClef] = useState<Clef>('treble');
-  const [notes, setNotes] = useState<PlacedNote[]>([]);
   const [ghostNote, setGhostNote] = useState<GhostNote | null>(null);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
+
+  // Early return if no active measure
+  if (!activeMeasure) {
+    return <div>No active measure</div>;
+  }
+
+  // Extract from context (activeMeasure is guaranteed non-null here)
+  const measureId = activeMeasure.id;
+  const notes = activeMeasure.notes;
+  const selectedTimeSignature = activeMeasure.timeSignature;
+  const selectedClef = activeMeasure.clef || 'treble';
 
   /**
    * Active noteDuration is either the existing hovered note's noteDuration or the selected noteDuration
@@ -126,14 +156,14 @@ function NotePlopper(): ReactNode {
    * Handles selection of time signature
    */
   function handleSelectTimeSignature(timeSignature: TimeSignature): void {
-    setSelectedTimeSignature(timeSignature);
+    updateMeasureTimeSignature(measureId, timeSignature);
   }
 
   /**
    * Handles selection of clef
    */
   function handleSelectClef(clef: Clef): void {
-    setSelectedClef(clef);
+    updateMeasureClef(measureId, clef);
   }
 
   /**
@@ -172,7 +202,7 @@ function NotePlopper(): ReactNode {
    * Handles pointer movement over the staff, updating ghost note position
    */
   function handlePointerMove(svgPoint: { x: number; y: number }): void {
-    const snappedX = snapToGrid(svgPoint.x);
+    const snappedX = snapToGrid(svgPoint.x, selectedTimeSignature, isFirstMeasure);
     const snappedY = snapToStaff(svgPoint.y);
 
     /**
@@ -239,13 +269,8 @@ function NotePlopper(): ReactNode {
    */
   function handlePointerDown(): void {
     if (draggedNoteId && ghostNote) {
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
-          note.id === draggedNoteId
-            ? { ...note, x: ghostNote.x, y: ghostNote.y }
-            : note
-        )
-      );
+      // Update existing note position
+      updateNote(measureId, draggedNoteId, { x: ghostNote.x, y: ghostNote.y });
       setDraggedNoteId(null);
       setGhostNote(null);
       setHoveredNoteId(null);
@@ -258,15 +283,61 @@ function NotePlopper(): ReactNode {
       return;
     }
 
-    const newNote: PlacedNote = {
-      id: generateNoteId(),
+    addNote(measureId, {
       x: ghostNote.x,
       y: ghostNote.y,
       duration: activeDuration,
-    };
-
-    setNotes((prevNotes) => [...prevNotes, newNote]);
+    });
   }
+
+  /**
+   * Navigate to previous measure
+   */
+  function handlePreviousMeasure(): void {
+    if (!activeTrack) return;
+    const currentIndex = activeTrack.measures.findIndex(m => m.id === measureId);
+    if (currentIndex > 0) {
+      setActiveMeasure(activeTrack.measures[currentIndex - 1].id);
+    }
+  }
+
+  /**
+   * Navigate to next measure
+   */
+  function handleNextMeasure(): void {
+    if (!activeTrack) return;
+    const currentIndex = activeTrack.measures.findIndex(m => m.id === measureId);
+    if (currentIndex < activeTrack.measures.length - 1) {
+      setActiveMeasure(activeTrack.measures[currentIndex + 1].id);
+    }
+  }
+
+  /**
+   * Add a new measure and navigate to it
+   */
+  function handleAddMeasure(): void {
+    if (!activeTrack) return;
+    const newMeasureId = addMeasure(activeTrack.id, selectedTimeSignature);
+    setActiveMeasure(newMeasureId);
+  }
+
+  /**
+   * Delete the current measure
+   */
+  function handleDeleteMeasure(): void {
+    if (!activeTrack || !activeMeasure || activeMeasure.number === 1) return;
+
+    // Navigate to previous measure before deleting
+    const currentIndex = activeTrack.measures.findIndex(m => m.id === measureId);
+    if (currentIndex > 0) {
+      setActiveMeasure(activeTrack.measures[currentIndex - 1].id);
+    }
+
+    deleteMeasure(activeTrack.id, measureId);
+  }
+
+  const totalMeasures = activeTrack?.measures.length || 0;
+  const isFirstMeasure = activeMeasure.number === 1;
 
   return (
     <div className="note-plopper utility__container">
@@ -280,17 +351,34 @@ function NotePlopper(): ReactNode {
           onSelectTimeSignature={handleSelectTimeSignature}
           onSelectClef={handleSelectClef}
         />
+        <MeasureIndicator
+          currentMeasureNumber={activeMeasure.number}
+          totalMeasures={totalMeasures}
+        />
         <Staff
           notes={notes}
           ghostNote={ghostNote}
           timeSignature={selectedTimeSignature}
           clef={selectedClef}
+          showTimeSignature={isFirstMeasure}
+          showClef={isFirstMeasure}
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
           onPointerDown={handlePointerDown}
           onNotePointerDown={handleNotePointerDown}
           onNotePointerEnter={handleNotePointerEnter}
           onNotePointerLeave={handleNotePointerLeave}
+        />
+        <MeasureNavigation
+          currentMeasureNumber={activeMeasure.number}
+          totalMeasures={totalMeasures}
+          onPrevious={handlePreviousMeasure}
+          onNext={handleNextMeasure}
+        />
+        <MeasureControls
+          isFirstMeasure={isFirstMeasure}
+          onAddMeasure={handleAddMeasure}
+          onDeleteMeasure={handleDeleteMeasure}
         />
         {/* Debug info */}
         <p>Selected: {selectedDuration || 'none'}</p>

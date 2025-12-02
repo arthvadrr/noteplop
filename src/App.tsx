@@ -1,7 +1,13 @@
-import { Home } from './pages'
+import { ScoreProvider } from './contexts/ScoreContext/ScoreContext';
+import Home from './pages/Home';
+import './styles/main.scss';
 
 function App() {
-  return <Home />
+  return (
+    <ScoreProvider>
+      <Home />
+    </ScoreProvider>
+  );
 }
 
-export default App
+export default App;

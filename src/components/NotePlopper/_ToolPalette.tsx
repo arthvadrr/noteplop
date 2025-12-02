@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import type { NoteDuration, TimeSignature, Clef, ToolPaletteProps } from './NotePlopper.types';
+import type { NoteDuration, TimeSignature, Clef } from '../../contexts/ScoreContext/ScoreContext.types';
+import type { ToolPaletteProps } from './NotePlopper.types';
 
 /**
  * Time signature options
