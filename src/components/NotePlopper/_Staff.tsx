@@ -292,34 +292,6 @@ function Staff({
           maxX={796}
         />
       )}
-
-      {/* Duration connectors for vertically aligned notes */}
-      {durationConnectors.map((connector, index) => {
-        /**
-         * Skip rendering if notes are at same Y position
-         */
-        if (connector.y1 === connector.y2) return null;
-
-        /**
-         * Determine if the second note is above or below the first
-         * If y2 < y1, the second note is above (Y increases downward)
-         */
-        const isAbove = connector.y2 < connector.y1;
-
-        return (
-          <line
-            key={`duration-connector-${index}`}
-            x1={connector.x - 6}
-            y1={isAbove ? connector.y1 + 6 : connector.y1 - 6}
-            x2={connector.x - 6}
-            y2={isAbove ? connector.y2 - 6 : connector.y2 + 6}
-            stroke={connector.color}
-            strokeWidth={12}
-            opacity={0.5}
-            style={{ pointerEvents: 'none' }}
-          />
-        );
-      })}
     </svg>
   );
 }

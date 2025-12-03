@@ -185,20 +185,6 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
         style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
       />
 
-      {/* Duration indicator line */}
-      {showDurationIndicator && beatWidth > 0 && durationLineEndX > x && (
-        <line
-          x1={x}
-          y1={y}
-          x2={durationLineEndX}
-          y2={y}
-          stroke={DURATION_COLORS[duration]}
-          strokeWidth={INDICATOR_THICKNESS}
-          opacity={INDICATOR_OPACITY}
-          style={{ pointerEvents: 'none' }}
-        />
-      )}
-
       {/* Stem for half, quarter, eighth, and sixteenth notes */}
       {(duration === 'half' || duration === 'quarter' || duration === 'eighth' || duration === 'sixteenth') && (
         <line
