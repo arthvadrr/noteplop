@@ -43,8 +43,7 @@ const BEAT_DURATIONS = {
   sixteenth: 0.25,
 } as const;
 
-const INDICATOR_THICKNESS = 12;
-const INDICATOR_OPACITY = 0.5;
+const INDICATOR_THICKNESS = 8;
 
 /**
  * Staff configuration for ledger line calculation
@@ -101,9 +100,11 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
   const actualStemHeight = stemHeight ?? 120;
 
   /**
-   * Calculate duration indicator line end position
-   * Line extends from center of note head rightward, clamped to measure boundary
+   * Calculate duration indicator line position
+   * beatWidth is now aligned with the grid (4 grid steps per beat)
+   * Line starts at right edge of note head and extends to next note's center
    */
+  const durationLineStartX = x + radius;
   const durationLineEndX = showDurationIndicator && beatWidth > 0
     ? Math.min(x + (BEAT_DURATIONS[duration] * beatWidth), maxX)
     : 0;
@@ -135,6 +136,19 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
       onPointerLeave={handlePointerLeave}
       style={{ cursor: onPointerDown ? 'move' : 'default' }}
     >
+      {/* Duration indicator line (rendered first so it's below everything else) */}
+      {showDurationIndicator && beatWidth > 0 && durationLineEndX > durationLineStartX && (
+        <line
+          x1={durationLineStartX}
+          y1={y}
+          x2={durationLineEndX}
+          y2={y}
+          stroke={DURATION_COLORS[duration]}
+          strokeWidth={INDICATOR_THICKNESS}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
       {/* Ledger lines */}
       {ledgerLines.map((ledgerY, index) => (
         <line

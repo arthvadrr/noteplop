@@ -142,6 +142,12 @@ function snapToStaff(y: number): number {
  * Creates exactly 16 evenly-spaced snap points (16th note resolution)
  * Uses 15 divisions to create 16 snap points (including endpoints)
  */
+/**
+ * Snaps an X coordinate to the grid
+ * Creates exactly 16 evenly-spaced snap points for note placement (positions 0-15)
+ * Uses 15 divisions to create 16 positions
+ * Position 16 (at maxX) is the bar line endpoint for duration calculations
+ */
 function snapToGrid(x: number, isFirstMeasure: boolean): number {
   const minX = getMinX(isFirstMeasure);
   const maxX = getMaxX();
@@ -149,13 +155,15 @@ function snapToGrid(x: number, isFirstMeasure: boolean): number {
   const divisions = 15;
   const stepSize = range / divisions;
 
-  // Calculate which snap point is closest
+  // Calculate which snap point is closest (0-15)
   const relativeX = x - minX;
   const snapIndex = Math.round(relativeX / stepSize);
-  const snappedX = minX + (snapIndex * stepSize);
 
-  // Clamp to valid range
-  return Math.max(minX, Math.min(snappedX, maxX));
+  // Clamp snapIndex to 0-15 (16 valid note placement positions)
+  const clampedIndex = Math.max(0, Math.min(snapIndex, 15));
+  const snappedX = minX + (clampedIndex * stepSize);
+
+  return snappedX;
 }
 
 function NotePlopper(): ReactNode {
@@ -194,13 +202,21 @@ function NotePlopper(): ReactNode {
 
   /**
    * Calculate beat width for duration indicators
-   * Based on time signature and measure boundaries
+   * Must align with the 15-division grid system (16 snap points)
+   * A quarter note (1 beat) spans 4 grid positions
+   * Note: This is calculated per measure in the carousel render
    */
-  const isFirstMeasure = activeMeasure.number === 1;
-  const minX = getMinX(isFirstMeasure);
-  const maxX = getMaxX();
-  const beatsInMeasure = parseInt(selectedTimeSignature.split('/')[0]);
-  const beatWidth = (maxX - minX) / beatsInMeasure;
+  
+  /**
+   * Helper function to calculate beatWidth for a specific measure
+   */
+  function calculateBeatWidth(measureNumber: number): number {
+    const isFirst = measureNumber === 1;
+    const minX = getMinX(isFirst);
+    const maxX = getMaxX();
+    const stepSize = (maxX - minX) / 15;
+    return stepSize * 4;  // 4 grid steps per beat
+  }
 
   /**
    * Active noteDuration is either the existing hovered note's noteDuration or the selected noteDuration
@@ -272,6 +288,7 @@ function NotePlopper(): ReactNode {
    * Handles pointer movement over the staff, updating ghost note position
    */
   function handlePointerMove(svgPoint: { x: number; y: number }): void {
+    const isFirstMeasure = activeMeasure.number === 1;
     const snappedX = snapToGrid(svgPoint.x, isFirstMeasure);
     const snappedY = snapToStaff(svgPoint.y);
 
@@ -453,7 +470,7 @@ function NotePlopper(): ReactNode {
               showClef={measure.number === 1}
               isActive={isActive}
               showDurationIndicators={showDurationIndicators}
-              beatWidth={beatWidth}
+              beatWidth={calculateBeatWidth(measure.number)}
               onPointerMove={isActive ? handlePointerMove : () => { }}
               onPointerLeave={isActive ? handlePointerLeave : () => { }}
               onPointerDown={isActive ? handlePointerDown : () => { }}
@@ -470,7 +487,7 @@ function NotePlopper(): ReactNode {
           onNext={handleNextMeasure}
         />
         <MeasureControls
-          isFirstMeasure={isFirstMeasure}
+          isFirstMeasure={activeMeasure.number === 1}
           hasNotes={notes.length > 0}
           onAddMeasure={handleAddMeasure}
           onResetMeasure={handleResetMeasure}

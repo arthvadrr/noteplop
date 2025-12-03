@@ -36,6 +36,12 @@ const DURATION_IN_STEPS = {
 } as const;
 
 /**
+ * Epsilon for floating point comparison
+ * First measure uses 34.666... step size which causes precision issues
+ */
+const EPSILON = 0.0001;
+
+/**
  * Creates vertical connectors between notes when the spacing
  * matches the previous note's duration
  */
@@ -60,86 +66,58 @@ export function calculateDurationConnectors(
    */
   allNotes.sort((a, b) => a.x - b.x);
 
-  /**
-   * Calculate step size from first two notes (if available)
-   * Or derive from the note positions
-   */
   const firstX = allNotes[0].x;
-  const secondX = allNotes.length > 1 ? allNotes[1].x : null;
-  
-  /**
-   * Log all note positions for analysis
-   */
-  console.log('=== ALL NOTES IN MEASURE ===');
-  allNotes.forEach((note, index) => {
-    console.log(`Note ${index}: x=${note.x}, y=${note.y}, duration=${note.duration}`);
-  });
-  if (secondX) {
-    const stepSize = secondX - firstX;
-    console.log(`Calculated step size: ${stepSize}px`);
-  }
-  console.log('============================\n');
 
   /**
-   * For each note, check if it's the correct distance from the previous note
+   * For each note, check if it's the correct distance from the immediately previous note
    */
   allNotes.forEach((currentNote, index) => {
     if (index === 0) return; // Skip first note, no previous note
 
     /**
-     * Check all previous notes to see if any are the right distance away
+     * Only check the immediately previous note (not all previous notes)
+     * This creates a simple chain: note connects to its left neighbor if spacing matches
      */
-    for (let i = 0; i < index; i++) {
-      const previousNote = allNotes[i];
+    const previousNote = allNotes[index - 1];
 
-      /**
-       * Skip if notes are at same Y position (horizontally aligned)
-       */
-      if (currentNote.y === previousNote.y) {
-        continue;
-      }
+    /**
+     * Skip if notes are at same Y position (horizontally aligned)
+     */
+    if (currentNote.y === previousNote.y) {
+      return;
+    }
 
-      /**
-       * Calculate actual distance between notes
-       */
-      const actualDistance = currentNote.x - previousNote.x;
-      
-      /**
-       * Calculate expected distance based on previous note's duration in steps
-       */
-      const stepsInDuration = DURATION_IN_STEPS[previousNote.duration as keyof typeof DURATION_IN_STEPS] || 3.75;
-      
-      /**
-       * Calculate step size based on first note position
-       * First measure: (760-240)/15, Other measures: (760-40)/15
-       */
-      const minX = firstX === 240 ? 240 : 40;
-      const stepSize = (760 - minX) / 15;
-      const expectedDistance = stepsInDuration * stepSize;
-      
-      console.log(`Comparing: prev note at ${previousNote.x} (${previousNote.duration}) to current at ${currentNote.x}`);
-      console.log(`  Steps: ${stepsInDuration}, StepSize: ${stepSize}px`);
-      console.log(`  Expected distance: ${expectedDistance}, Actual: ${actualDistance}`);
-      
-      /**
-       * Round both to nearest 0.1 for comparison (handle floating point)
-       */
-      const actualRounded = Math.round(actualDistance * 10) / 10;
-      const expectedRounded = Math.round(expectedDistance * 10) / 10;
-      
-      console.log(`  Rounded - Expected: ${expectedRounded}, Actual: ${actualRounded}, Match: ${actualRounded === expectedRounded}`);
-      
-      if (actualRounded === expectedRounded) {
-        console.log(`  ✅ MATCH! Drawing connector`);
-        const color = DURATION_COLORS[previousNote.duration as keyof typeof DURATION_COLORS] || '#FFFFFF';
+    /**
+     * Calculate actual distance between notes
+     */
+    const actualDistance = currentNote.x - previousNote.x;
+    
+    /**
+     * Calculate expected distance based on previous note's duration in steps
+     */
+    const stepsInDuration = DURATION_IN_STEPS[previousNote.duration as keyof typeof DURATION_IN_STEPS] || 4;
+    
+    /**
+     * Calculate step size based on first note position
+     * First measure: (760-240)/15, Other measures: (760-40)/15
+     */
+    const minX = firstX === 240 ? 240 : 40;
+    const stepSize = (760 - minX) / 15;
+    const expectedDistance = stepsInDuration * stepSize;
+    
+    /**
+     * Check for match using epsilon tolerance for floating point precision
+     * First measure (34.666... step size) requires this tolerance
+     */
+    if (Math.abs(actualDistance - expectedDistance) < EPSILON) {
+      const color = DURATION_COLORS[previousNote.duration as keyof typeof DURATION_COLORS] || '#FFFFFF';
 
-        connectors.push({
-          x: currentNote.x,
-          y1: previousNote.y,
-          y2: currentNote.y,
-          color,
-        });
-      }
+      connectors.push({
+        x: currentNote.x,
+        y1: previousNote.y,
+        y2: currentNote.y,
+        color,
+      });
     }
   });
 

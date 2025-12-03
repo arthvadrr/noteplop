@@ -181,7 +181,7 @@ function Staff({
           y2={y}
           stroke="currentColor"
           strokeWidth={4}
-          opacity={0.8}
+          opacity={0.5}
         />
       ))}
 
@@ -193,7 +193,7 @@ function Staff({
         y2={STAFF_LINE_POSITIONS[4]}
         stroke="currentColor"
         strokeWidth={4}
-        opacity={0.8}
+        opacity={0.5}
       />
 
       {/* Right bar line */}
@@ -204,8 +204,35 @@ function Staff({
         y2={STAFF_LINE_POSITIONS[4]}
         stroke="currentColor"
         strokeWidth={4}
-        opacity={0.8}
+        opacity={0.5}
       />
+
+      {/* Duration connectors (rendered after staff lines so they appear on top) */}
+      {durationConnectors.map((connector, index) => {
+        /**
+         * Skip rendering if notes are at same Y position
+         */
+        if (connector.y1 === connector.y2) return null;
+
+        /**
+         * Determine if the second note is above or below the first
+         * If y2 < y1, the second note is above (Y increases downward)
+         */
+        const isAbove = connector.y2 < connector.y1;
+
+        return (
+          <line
+            key={`duration-connector-${index}`}
+            x1={connector.x}
+            y1={isAbove ? connector.y1 + 4 : connector.y1 - 4}
+            x2={connector.x}
+            y2={isAbove ? connector.y2 - 4 : connector.y2 + 4}
+            stroke={connector.color}
+            strokeWidth={8}
+            style={{ pointerEvents: 'none' }}
+          />
+        );
+      })}
 
       {/* Placed notes */}
       {unbeamedNotes.map((note) => (
@@ -217,7 +244,7 @@ function Staff({
           isGhost={false}
           showDurationIndicator={showDurationIndicators}
           beatWidth={beatWidth}
-          maxX={760}
+          maxX={796}
           onPointerDown={() => onNotePointerDown(note.id)}
           onPointerEnter={() => onNotePointerEnter(note.id)}
           onPointerLeave={onNotePointerLeave}
@@ -239,7 +266,7 @@ function Staff({
               stemHeight={stemHeight}
               showDurationIndicator={showDurationIndicators}
               beatWidth={beatWidth}
-              maxX={760}
+              maxX={796}
               onPointerDown={() => onNotePointerDown(note.id)}
               onPointerEnter={() => onNotePointerEnter(note.id)}
               onPointerLeave={onNotePointerLeave}
@@ -262,7 +289,7 @@ function Staff({
           isGhost={true}
           showDurationIndicator={showDurationIndicators}
           beatWidth={beatWidth}
-          maxX={760}
+          maxX={796}
         />
       )}
 
