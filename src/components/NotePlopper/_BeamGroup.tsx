@@ -4,18 +4,23 @@ import type { PlacedNote } from '../../contexts/ScoreContext/ScoreContext.types'
 interface BeamGroupProps {
   notes: PlacedNote[];
   beamY: number;
+  stemDirection?: 'up' | 'down';
   strokeColor?: string;
 }
 
 /**
  * Renders horizontal beams connecting a group of eighth/sixteenth notes
- * beamY should be the Y position where the beam should be drawn (typically the highest note's stem end)
+ * beamY should be the Y position where the beam should be drawn
+ * For stems up: typically the highest note's stem end (above notes)
+ * For stems down: typically the lowest note's stem end (below notes)
  */
-function BeamGroup({ notes, beamY, strokeColor = 'white' }: BeamGroupProps): ReactNode {
+function BeamGroup({ notes, beamY, stemDirection = 'up', strokeColor = 'white' }: BeamGroupProps): ReactNode {
   if (notes.length < 2) return null;
 
   /**
-   * STEM_OFFSET: Note radius
+   * STEM_OFFSET: Note radius - adjusts based on stem direction
+   * For stems up: beam connects to right side of notehead (+ radius)
+   * For stems down: beam connects to left side of notehead (- radius)
    * BEAM_THICKNESS: Thickness of the beam line
    * BEAM_SPACING: Space between beams for sixteenth notes
    * BEAM_EXTENSION: Extend beam by half its thickness on each end
@@ -29,9 +34,14 @@ function BeamGroup({ notes, beamY, strokeColor = 'white' }: BeamGroupProps): Rea
 
   /**
    * Extend the beam slightly beyond the first and last stem
+   * Adjust X position based on stem direction
    */
-  const startX = firstNote.x + STEM_OFFSET - BEAM_EXTENSION;
-  const endX = lastNote.x + STEM_OFFSET + BEAM_EXTENSION;
+  const startX = stemDirection === 'up'
+    ? firstNote.x + STEM_OFFSET - BEAM_EXTENSION
+    : firstNote.x - STEM_OFFSET - BEAM_EXTENSION;
+  const endX = stemDirection === 'up'
+    ? lastNote.x + STEM_OFFSET + BEAM_EXTENSION
+    : lastNote.x - STEM_OFFSET + BEAM_EXTENSION;
 
   /**
    * Determine if we need one or two beams
@@ -71,14 +81,18 @@ function BeamGroup({ notes, beamY, strokeColor = 'white' }: BeamGroupProps): Rea
           {notes.map((note, index) => {
             if (note.duration !== 'sixteenth') return null;
 
-            const noteX = note.x + STEM_OFFSET;
+            const noteX = stemDirection === 'up'
+              ? note.x + STEM_OFFSET
+              : note.x - STEM_OFFSET;
             const nextNote = notes[index + 1];
 
             /**
              * Check if next note is also sixteenth
              */
             if (nextNote && nextNote.duration === 'sixteenth') {
-              const nextX = nextNote.x + STEM_OFFSET;
+              const nextX = stemDirection === 'up'
+                ? nextNote.x + STEM_OFFSET
+                : nextNote.x - STEM_OFFSET;
               return (
                 <line
                   key={`beam2-${note.id}`}

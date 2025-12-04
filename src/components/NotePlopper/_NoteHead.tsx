@@ -88,7 +88,7 @@ function calculateLedgerLines(y: number): number[] {
   return ledgerPositions;
 }
 
-function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, showDurationIndicator = false, beatWidth = 0, maxX = 760, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
+function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, stemDirection = 'up', showDurationIndicator = false, beatWidth = 0, maxX = 760, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
   const opacity = isGhost ? 0.5 : 1;
   const radius = 24;
   const fillStyle = NOTE_FILL_STYLES[duration];
@@ -188,10 +188,10 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
       {/* Stem for half, quarter, eighth, and sixteenth notes */}
       {(duration === 'half' || duration === 'quarter' || duration === 'eighth' || duration === 'sixteenth') && (
         <line
-          x1={x + radius}
+          x1={stemDirection === 'up' ? x + radius : x - radius}
           y1={y}
-          x2={x + radius}
-          y2={y - actualStemHeight}
+          x2={stemDirection === 'up' ? x + radius : x - radius}
+          y2={stemDirection === 'up' ? y - actualStemHeight : y + actualStemHeight}
           stroke={strokeColor}
           strokeWidth={6}
         />
@@ -200,10 +200,10 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
       {/* Flag for eighth notes (single flag) */}
       {duration === 'eighth' && !hideFlag && (
         <line
-          x1={x + radius}
-          y1={y - actualStemHeight}
-          x2={x + radius + 24}
-          y2={y - actualStemHeight + 30}
+          x1={stemDirection === 'up' ? x + radius : x - radius}
+          y1={stemDirection === 'up' ? y - actualStemHeight : y + actualStemHeight}
+          x2={stemDirection === 'up' ? x + radius + 24 : x - radius + 24}
+          y2={stemDirection === 'up' ? y - actualStemHeight + 30 : y + actualStemHeight - 30}
           stroke={strokeColor}
           strokeWidth={7}
           style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
@@ -215,20 +215,20 @@ function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeigh
         <>
           {/* First flag */}
           <line
-            x1={x + radius}
-            y1={y - actualStemHeight}
-            x2={x + radius + 24}
-            y2={y - actualStemHeight + 30}
+            x1={stemDirection === 'up' ? x + radius : x - radius}
+            y1={stemDirection === 'up' ? y - actualStemHeight : y + actualStemHeight}
+            x2={stemDirection === 'up' ? x + radius + 24 : x - radius + 24}
+            y2={stemDirection === 'up' ? y - actualStemHeight + 30 : y + actualStemHeight - 30}
             stroke={strokeColor}
             strokeWidth={7}
             style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}
           />
           {/* Second flag */}
           <line
-            x1={x + radius}
-            y1={y - actualStemHeight + 20}
-            x2={x + radius + 24}
-            y2={y - actualStemHeight + 50}
+            x1={stemDirection === 'up' ? x + radius : x - radius}
+            y1={stemDirection === 'up' ? y - actualStemHeight + 20 : y + actualStemHeight - 20}
+            x2={stemDirection === 'up' ? x + radius + 24 : x - radius + 24}
+            y2={stemDirection === 'up' ? y - actualStemHeight + 50 : y + actualStemHeight - 50}
             stroke={strokeColor}
             strokeWidth={7}
             style={{ pointerEvents: onPointerDown ? 'none' : 'auto' }}

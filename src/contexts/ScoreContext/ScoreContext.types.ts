@@ -14,6 +14,11 @@ export type TimeSignature = '4/4' | '3/4' | '6/8' | '2/4';
 export type Clef = 'treble' | 'bass' | 'alto';
 
 /**
+ * Stem direction for notes with stems
+ */
+export type StemDirection = 'up' | 'down';
+
+/**
  * A single note placed on the staff
  * X coordinate is relative to the measure's start position
  */
@@ -22,6 +27,7 @@ export interface PlacedNote {
   x: number;
   y: number;
   duration: NoteDuration;
+  stemDirection?: StemDirection;
 }
 
 /**

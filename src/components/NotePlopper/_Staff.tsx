@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { calculateDurationConnectors } from './_durationConnectorUtils';
 import { groupNotesForBeaming, getUnbeamedNotes } from './_beamingUtils';
+import { calculateStemDirection, calculateBeamGroupStemDirection } from './_stemDirectionUtils';
 import NoteHead from './_NoteHead';
 import BeamGroup from './_BeamGroup';
 import SVGTrebleClef from './_SVGTrebleClef';
@@ -129,20 +130,34 @@ function Staff({
 
   // Calculate beam Y position and stem heights for each beam group
   const beamGroupData = beamGroups.map(group => {
-    // Find the highest note in the group (smallest Y value)
-    const highestNoteY = Math.min(...group.map(note => note.y));
+    // Calculate stem direction for the group
+    const stemDirection = calculateBeamGroupStemDirection(group);
+
+    /**
+     * Find the appropriate note Y for beam positioning
+     * 
+     * For stems up: beam at highest note (smallest Y) minus stem height
+     * For stems down: beam at lowest note (largest Y) plus stem height
+     */
+    const referenceY = stemDirection === 'up'
+      ? Math.min(...group.map(note => note.y))
+      : Math.max(...group.map(note => note.y));
+
     const defaultStemHeight = 120;
-    const beamY = highestNoteY - defaultStemHeight;
+    const beamY = stemDirection === 'up'
+      ? referenceY - defaultStemHeight
+      : referenceY + defaultStemHeight;
 
     // Calculate custom stem height for each note to reach the beam
     const notesWithStemHeights = group.map(note => ({
       note,
-      stemHeight: note.y - beamY
+      stemHeight: Math.abs(note.y - beamY)
     }));
 
     return {
       notes: notesWithStemHeights,
-      beamY
+      beamY,
+      stemDirection
     };
   });
 
@@ -242,6 +257,7 @@ function Staff({
           y={note.y}
           duration={note.duration}
           isGhost={false}
+          stemDirection={calculateStemDirection(note.y)}
           showDurationIndicator={showDurationIndicators}
           beatWidth={beatWidth}
           maxX={796}
@@ -264,6 +280,7 @@ function Staff({
               isGhost={false}
               hideFlag={true}
               stemHeight={stemHeight}
+              stemDirection={groupData.stemDirection}
               showDurationIndicator={showDurationIndicators}
               beatWidth={beatWidth}
               maxX={796}
@@ -276,6 +293,7 @@ function Staff({
           <BeamGroup
             notes={groupData.notes.map(({ note }) => note)}
             beamY={groupData.beamY}
+            stemDirection={groupData.stemDirection}
           />
         </g>
       ))}
@@ -287,6 +305,7 @@ function Staff({
           y={ghostNote.y}
           duration={ghostNote.duration}
           isGhost={true}
+          stemDirection={calculateStemDirection(ghostNote.y)}
           showDurationIndicator={showDurationIndicators}
           beatWidth={beatWidth}
           maxX={796}

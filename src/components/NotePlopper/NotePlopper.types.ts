@@ -64,6 +64,7 @@ export interface NoteHeadProps {
   isGhost?: boolean;
   hideFlag?: boolean;
   stemHeight?: number;
+  stemDirection?: 'up' | 'down';
   showDurationIndicator?: boolean;
   beatWidth?: number;
   maxX?: number;
