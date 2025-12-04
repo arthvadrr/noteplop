@@ -1,0 +1,162 @@
+@use '../../util/variables' as *;
+
+@property --color-1 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-1};
+}
+
+@property --color-2 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-2};
+}
+
+@property --color-3 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-3};
+}
+
+@property --color-4 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-4};
+}
+
+@property --color-5 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-5};
+}
+
+.measure-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+
+  &__button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+
+    &--add {
+      background-color: #0d6d5b;
+      border-color: #0b7f6a;
+      color: white;
+
+      &.clicked {
+        animation: ripple-out-add 0.5s ease-out;
+      }
+
+      &:hover {
+        background-color: #0c806b;
+        border-color: #0b8d75;
+      }
+    }
+
+    &--reset {
+      background-color: #593957;
+      border-color: #71496e;
+      color: white;
+
+      &.clicked {
+        animation: ripple-out-reset 0.5s ease-out;
+      }
+
+      &:hover {
+        background-color: #7b4c78;
+        border-color: #71496e;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    &--delete {
+      background-color: #870a32;
+      border-color: #9e123e;
+      color: white;
+
+      &.clicked {
+        animation: ripple-out-delete 0.5s ease-out;
+      }
+
+      &:hover {
+        background-color: #ad1344;
+        border-color: #9e123e;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@keyframes jiggle-right {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(4px);
+  }
+
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes jiggle-left {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes ripple-out-add {
+  0% {
+    box-shadow: 0 0 0 0 rgba(13, 109, 91, 0.7);
+  }
+
+  100% {
+    box-shadow: 0 0 0 40px rgba(13, 109, 91, 0);
+  }
+}
+
+@keyframes ripple-out-reset {
+  0% {
+    box-shadow: 0 0 0 0 rgba(89, 57, 87, 0.7);
+  }
+
+  100% {
+    box-shadow: 0 0 0 40px rgba(89, 57, 87, 0);
+  }
+}
+
+@keyframes ripple-out-delete {
+  0% {
+    box-shadow: 0 0 0 0 rgba(135, 10, 50, 0.7);
+  }
+
+  100% {
+    box-shadow: 0 0 0 40px rgba(135, 10, 50, 0);
+  }
+}

@@ -6,7 +6,7 @@ function Home(): ReactNode {
     <div className="home">
       <header className="utility__container">
         <div className="utility__content">
-          <h1>Note Plop</h1>
+          <h1>NotePlop</h1>
         </div>
       </header>
       <main>

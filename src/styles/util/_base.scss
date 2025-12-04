@@ -10,7 +10,7 @@
   font-weight: $font-weight-normal;
   line-height: $line-height-base;
   color: $color-text-dark;
-  background-color: $color-background-dark;
+  background-color: $color-background-darker;
 }
 
 #root {
@@ -37,17 +37,18 @@ body {
 
 button {
   border-radius: $border-radius-base;
-  border: 1px solid transparent;
+  border: 1px solid #333;
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   font-weight: $font-weight-normal;
   font-family: inherit;
   background-color: $color-button-bg-dark;
   transition: border-color $transition-duration;
+  color: $color-text-dark;
   cursor: pointer;
 
   &:hover {
-    border-color: $color-primary;
+    border-color: #439bac;
   }
 
   &:focus,

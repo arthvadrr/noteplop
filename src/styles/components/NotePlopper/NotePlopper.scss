@@ -1,0 +1,19 @@
+@use '../../util/variables' as *;
+
+// Import all NotePlopper component styles
+@use './_ToolPalette';
+@use './_Staff';
+@use './_MeasureCarousel';
+@use './_MeasureIndicator';
+@use './_MeasureNavigation';
+@use './_MeasureControls';
+
+// Main container wrapper
+.note-plopper-tool-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #424242;
+  border-radius: 1rem;
+}

@@ -1,0 +1,109 @@
+@use '../../util/variables' as *;
+
+@keyframes jiggle-right {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(4px);
+  }
+
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes jiggle-left {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@property --color-1 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-1};
+}
+
+@property --color-2 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-2};
+}
+
+@property --color-3 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-3};
+}
+
+@property --color-4 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-4};
+}
+
+@property --color-5 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #{$gradient-color-5};
+}
+
+.measure-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+
+  &__button {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(to right top, var(--color-1), var(--color-2), var(--color-3), var(--color-4), var(--color-5));
+    border: 1px solid $gradient-color-1;
+    border-radius: 18px;
+    cursor: pointer;
+    color: white;
+    transition: --color-1 0.3s ease-in-out,
+      --color-2 0.3s ease-in-out,
+      --color-3 0.3s ease-in-out,
+      --color-4 0.3s ease-in-out,
+      --color-5 0.3s ease-in-out;
+
+    &:active:not(:disabled) {
+      &:first-child {
+        animation: jiggle-left 0.3s ease-in-out;
+      }
+
+      &:last-child {
+        animation: jiggle-right 0.3s ease-in-out;
+      }
+    }
+
+    &:hover:not(:disabled) {
+      border-color: $gradient-color-5;
+      --color-1: #{$gradient-color-1};
+      --color-2: #{$gradient-color-2};
+      --color-3: #{$gradient-color-3};
+      --color-4: #{$gradient-color-4};
+      --color-5: #{$gradient-color-5};
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

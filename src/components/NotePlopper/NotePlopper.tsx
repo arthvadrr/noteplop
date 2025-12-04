@@ -206,7 +206,7 @@ function NotePlopper(): ReactNode {
    * A quarter note (1 beat) spans 4 grid positions
    * Note: This is calculated per measure in the carousel render
    */
-  
+
   /**
    * Helper function to calculate beatWidth for a specific measure
    */
@@ -442,23 +442,21 @@ function NotePlopper(): ReactNode {
   return (
     <div className="note-plopper utility__container">
       <div className="utility__content">
-        <ToolPalette
-          selectedDuration={selectedDuration}
-          selectedTimeSignature={selectedTimeSignature}
-          selectedClef={selectedClef}
-          onSelectDuration={handleSelectDuration}
-          onSelectTimeSignature={handleSelectTimeSignature}
-          onSelectClef={handleSelectClef}
-        />
-        <Toggle
-          label="Show Duration Indicators"
-          checked={showDurationIndicators}
-          onChange={setShowDurationIndicators}
-        />
-        <MeasureIndicator
-          currentMeasureNumber={activeMeasure.number}
-          totalMeasures={totalMeasures}
-        />
+        <div className="note-plopper-tool-panel">
+          <ToolPalette
+            selectedDuration={selectedDuration}
+            selectedTimeSignature={selectedTimeSignature}
+            selectedClef={selectedClef}
+            onSelectDuration={handleSelectDuration}
+            onSelectTimeSignature={handleSelectTimeSignature}
+            onSelectClef={handleSelectClef}
+          />
+          <Toggle
+            label="Show Duration Indicators"
+            checked={showDurationIndicators}
+            onChange={setShowDurationIndicators}
+          />
+        </div>
         <MeasureCarousel measures={measures} activeMeasureId={activeMeasure.id}>
           {(measure, isActive) => (
             <Staff
@@ -480,6 +478,10 @@ function NotePlopper(): ReactNode {
             />
           )}
         </MeasureCarousel>
+        <MeasureIndicator
+          currentMeasureNumber={activeMeasure.number}
+          totalMeasures={totalMeasures}
+        />
         <MeasureNavigation
           currentMeasureNumber={activeMeasure.number}
           totalMeasures={totalMeasures}
@@ -493,10 +495,6 @@ function NotePlopper(): ReactNode {
           onResetMeasure={handleResetMeasure}
           onDeleteMeasure={handleDeleteMeasure}
         />
-        {/* Debug info */}
-        <p>Selected: {selectedDuration || 'none'}</p>
-        <p>Notes placed: {notes.length}</p>
-        <p>Ghost note: {ghostNote ? `x:${ghostNote.x}, y:${ghostNote.y}` : 'none'}</p>
       </div>
     </div>
   );

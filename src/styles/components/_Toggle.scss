@@ -15,15 +15,15 @@
     opacity: 0;
     pointer-events: none;
 
-    &:checked + .toggle__slider {
-      background-color: #4A90E2;
+    &:checked+.toggle__slider {
+      background-color: #439bac;
 
       &::before {
         transform: translateX(20px);
       }
     }
 
-    &:focus + .toggle__slider {
+    &:focus+.toggle__slider {
       box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
     }
   }

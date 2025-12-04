@@ -20,11 +20,11 @@ const CLEFS: Array<{ value: Clef; label: string }> = [
  * Note duration options with their display labels
  */
 const NOTE_DURATIONS: Array<{ value: NoteDuration; label: string }> = [
-  { value: 'whole', label: 'Whole' },
-  { value: 'half', label: 'Half' },
-  { value: 'quarter', label: 'Quarter' },
-  { value: 'eighth', label: 'Eighth' },
   { value: 'sixteenth', label: 'Sixteenth' },
+  { value: 'eighth', label: 'Eighth' },
+  { value: 'quarter', label: 'Quarter' },
+  { value: 'half', label: 'Half' },
+  { value: 'whole', label: 'Whole' },
 ];
 
 /**

@@ -3,10 +3,10 @@ import type { ReactNode } from 'react';
 function SVGAltoClef(): ReactNode {
   return (
     <svg
-      x={-40}
-      y={280}
+      x={-50}
+      y={295}
       width={250}
-      height={250}
+      height={220}
       viewBox="0 0 372.04724 524.40945"
     >
       <path
