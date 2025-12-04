@@ -30,31 +30,27 @@ const STAFF_LINE_POSITIONS = [
 ];
 
 /**
- * Ledger line positions above the staff
+ * Ledger line positions above the staff (limited to 3 ledger lines)
  * 1st ledger above: 175
  * 2nd ledger above: 100
  * 3rd ledger above: 25
- * 4th ledger above: -50
  */
 const LEDGER_LINE_POSITIONS_ABOVE = [
-  250 - LINE_SPACING,
-  250 - LINE_SPACING * 2,
-  250 - LINE_SPACING * 3,
-  250 - LINE_SPACING * 4,
+  250 - LINE_SPACING,     // 175
+  250 - LINE_SPACING * 2, // 100
+  250 - LINE_SPACING * 3, // 25
 ];
 
 /**
- * Ledger line positions below the staff
+ * Ledger line positions below the staff (limited to 3 ledger lines)
  * 1st ledger below: 625
  * 2nd ledger below: 700
  * 3rd ledger below: 775
- * 4th ledger below: 850 (outside viewbox, but we'll expand)
  */
 const LEDGER_LINE_POSITIONS_BELOW = [
-  550 + LINE_SPACING,
-  550 + LINE_SPACING * 2,
-  550 + LINE_SPACING * 3,
-  550 + LINE_SPACING * 4,
+  550 + LINE_SPACING,     // 625
+  550 + LINE_SPACING * 2, // 700
+  550 + LINE_SPACING * 3, // 775
 ];
 
 /**
@@ -77,25 +73,29 @@ const STAFF_SPACE_POSITIONS = [
 
 /**
  * Ledger space positions (spaces between ledger lines)
- * Space between 1st ledger above and top staff line: 212.5
- * Space between 1st and 2nd ledger above: 137.5
- * Space between 2nd and 3rd ledger above: 62.5
- * Space between 3rd and 4th ledger above: -12.5
- * Space between bottom staff line and 1st ledger below: 587.5
- * Space between 1st and 2nd ledger below: 662.5
- * Space between 2nd and 3rd ledger below: 737.5
- * Space between 3rd and 4th ledger below: 812.5
  */
 const LEDGER_SPACE_POSITIONS = [
-  212.5,
-  137.5,
-  62.5,
-  -12.5,
-  587.5,
-  662.5,
-  737.5,
-  812.5,
+  212.5, // Space between 1st ledger above and top staff line
+  137.5, // Space between 1st and 2nd ledger above
+  62.5,  // Space between 2nd and 3rd ledger above
+  587.5, // Space between bottom staff line and 1st ledger below
+  662.5, // Space between 1st and 2nd ledger below
+  737.5, // Space between 2nd and 3rd ledger below
 ];
+
+/**
+ * Note head radius
+ */
+const NOTE_HEAD_RADIUS = 24;
+
+/**
+ * Y-axis bounds for note placement
+ * Min: 3rd ledger line above (25) - half note head radius (12) - 1px = 12
+ * Max: 3rd ledger line below (775) + half note head radius (12) + 1px = 788
+ */
+const MIN_Y = 25 - NOTE_HEAD_RADIUS / 2 - 1;  // 12
+const MAX_Y = 775 + NOTE_HEAD_RADIUS / 2 + 1; // 788
+
 const SNAP_POINTS = [
   ...STAFF_LINE_POSITIONS,
   ...LEDGER_LINE_POSITIONS_ABOVE,
@@ -130,23 +130,22 @@ function getMaxX(): number {
 
 /**
  * Snaps a Y coordinate to the nearest staff line or space
+ * Clamps to valid range (3 ledger lines above/below)
  */
 function snapToStaff(y: number): number {
+  // Clamp Y to valid bounds
+  const clampedY = Math.max(MIN_Y, Math.min(y, MAX_Y));
+
+  // Find closest snap point
   return SNAP_POINTS.reduce((prev, curr) =>
-    Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev
+    Math.abs(curr - clampedY) < Math.abs(prev - clampedY) ? curr : prev
   );
 }
 
 /**
  * Snaps an X coordinate to the grid
- * Creates exactly 16 evenly-spaced snap points (16th note resolution)
- * Uses 15 divisions to create 16 snap points (including endpoints)
- */
-/**
- * Snaps an X coordinate to the grid
- * Creates exactly 16 evenly-spaced snap points for note placement (positions 0-15)
- * Uses 15 divisions to create 16 positions
- * Position 16 (at maxX) is the bar line endpoint for duration calculations
+ * Creates 16 evenly-spaced snap points (positions 0-15) for 16th note resolution
+ * Uses 15 divisions to create 16 positions; position 16 at maxX is the bar line endpoint
  */
 function snapToGrid(x: number, isFirstMeasure: boolean): number {
   const minX = getMinX(isFirstMeasure);
@@ -192,7 +191,7 @@ function NotePlopper(): ReactNode {
   }
 
   /**
-   * Extract from context (activeMeasure and activeTrack are guaranteed non-null here)
+   * Extract from context (activeMeasure and activeTrack are guaranteed not null here)
    */
   const measures = activeTrack.measures;
   const measureId = activeMeasure.id;
@@ -204,17 +203,15 @@ function NotePlopper(): ReactNode {
    * Calculate beat width for duration indicators
    * Must align with the 15-division grid system (16 snap points)
    * A quarter note (1 beat) spans 4 grid positions
+   * 
    * Note: This is calculated per measure in the carousel render
-   */
-
-  /**
-   * Helper function to calculate beatWidth for a specific measure
    */
   function calculateBeatWidth(measureNumber: number): number {
     const isFirst = measureNumber === 1;
     const minX = getMinX(isFirst);
     const maxX = getMaxX();
     const stepSize = (maxX - minX) / 15;
+
     return stepSize * 4;  // 4 grid steps per beat
   }
 
@@ -288,7 +285,7 @@ function NotePlopper(): ReactNode {
    * Handles pointer movement over the staff, updating ghost note position
    */
   function handlePointerMove(svgPoint: { x: number; y: number }): void {
-    const isFirstMeasure = activeMeasure.number === 1;
+    const isFirstMeasure = activeMeasure!.number === 1;
     const snappedX = snapToGrid(svgPoint.x, isFirstMeasure);
     const snappedY = snapToStaff(svgPoint.y);
 
@@ -314,6 +311,7 @@ function NotePlopper(): ReactNode {
      */
     if (hoveredNoteId) {
       setGhostNote(null);
+
       return;
     }
 
@@ -330,6 +328,7 @@ function NotePlopper(): ReactNode {
      * Check if there's already a note at this snapped position
      */
     const existingNoteAtPosition = notes.find(n => n.x === snappedX && n.y === snappedY);
+
     if (existingNoteAtPosition) {
       setGhostNote(null);
       return;
