@@ -70,10 +70,10 @@
   margin: 2rem 0;
 
   &__button {
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
     background: linear-gradient(to right top, var(--color-1), var(--color-2), var(--color-3), var(--color-4), var(--color-5));
     border: 1px solid $gradient-color-1;
-    border-radius: 18px;
+    border-radius: 20px;
     cursor: pointer;
     color: white;
     transition: --color-1 0.3s ease-in-out,
