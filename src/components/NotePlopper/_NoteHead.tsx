@@ -88,12 +88,12 @@ function calculateLedgerLines(y: number): number[] {
   return ledgerPositions;
 }
 
-function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, stemDirection = 'up', showDurationIndicator = false, beatWidth = 0, maxX = 760, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
+function NoteHead({ x, y, duration, isGhost = false, hideFlag = false, stemHeight, stemDirection = 'up', showDurationIndicator = false, beatWidth = 0, maxX = 760, color, onPointerDown, onPointerEnter, onPointerLeave }: NoteHeadProps): ReactNode {
   const opacity = isGhost ? 0.5 : 1;
   const radius = 24;
-  const fillStyle = NOTE_FILL_STYLES[duration];
+  const fillStyle = color || NOTE_FILL_STYLES[duration];
   const strokeWidth = NOTE_STROKE_WIDTHS[duration];
-  const strokeColor = isGhost ? 'rgba(255, 255, 255, 0.5)' : 'white';
+  const strokeColor = color || (isGhost ? 'rgba(255, 255, 255, 0.5)' : 'white');
   const ledgerLines = calculateLedgerLines(y);
 
   // Use custom stem height if provided, otherwise default to 120

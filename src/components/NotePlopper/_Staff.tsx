@@ -64,6 +64,7 @@ function renderTimeSignature(timeSignature: TimeSignature, x: number, y: number)
 function Staff({
   notes,
   ghostNote,
+  deletingNote,
   timeSignature,
   clef,
   showTimeSignature = true,
@@ -310,6 +311,31 @@ function Staff({
           beatWidth={beatWidth}
           maxX={796}
         />
+      )}
+
+      {/* Deleting note - red fade animation */}
+      {deletingNote && (
+        <g style={{ animation: 'deleteFade 0.4s ease-out forwards' }}>
+          <style>
+            {`
+              @keyframes deleteFade {
+                0% { opacity: 1; }
+                100% { opacity: 0; }
+              }
+            `}
+          </style>
+          <NoteHead
+            x={deletingNote.x}
+            y={deletingNote.y}
+            duration={deletingNote.duration}
+            isGhost={false}
+            stemDirection={calculateStemDirection(deletingNote.y)}
+            showDurationIndicator={false}
+            beatWidth={beatWidth}
+            maxX={796}
+            color="red"
+          />
+        </g>
       )}
     </svg>
   );

@@ -10,6 +10,15 @@ export interface GhostNote {
 }
 
 /**
+ * Represents a note that is being deleted with animation
+ */
+export interface DeletingNote {
+  x: number;
+  y: number;
+  duration: NoteDuration;
+}
+
+/**
  * Configuration for staff rendering and snapping
  */
 export interface StaffConfig {
@@ -27,6 +36,7 @@ export interface StaffConfig {
 export interface StaffProps {
   notes: PlacedNote[];
   ghostNote: GhostNote | null;
+  deletingNote: DeletingNote | null;
   timeSignature: TimeSignature;
   clef: Clef;
   showTimeSignature?: boolean;
@@ -68,6 +78,7 @@ export interface NoteHeadProps {
   showDurationIndicator?: boolean;
   beatWidth?: number;
   maxX?: number;
+  color?: string;
   onPointerDown?: () => void;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;

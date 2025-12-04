@@ -8,7 +8,7 @@ import Toggle from '../common/Toggle';
 import Staff from './_Staff';
 import type { NoteDuration, TimeSignature, Clef } from '../../contexts/ScoreContext/ScoreContext.types';
 import type { ReactNode } from 'react';
-import type { GhostNote } from './NotePlopper.types';
+import type { GhostNote, DeletingNote } from './NotePlopper.types';
 
 /**
  * Staff configuration constants
@@ -184,6 +184,7 @@ function NotePlopper(): ReactNode {
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
   const [showDurationIndicators, setShowDurationIndicators] = useState<boolean>(true);
+  const [deletingNote, setDeletingNote] = useState<DeletingNote | null>(null);
 
 
   if (!activeMeasure || !activeTrack) {
@@ -291,16 +292,46 @@ function NotePlopper(): ReactNode {
 
     /**
      * If dragging an existing note, update its ghost position
+     * Delete immediately if dragged outside the plottable area
      */
     if (draggedNoteId) {
       const draggedNote = notes.find((n) => n.id === draggedNoteId);
 
       if (draggedNote) {
-        setGhostNote({
-          x: snappedX,
-          y: snappedY,
-          duration: draggedNote.duration,
-        });
+        // Check if dragged outside the plottable area (X or Y bounds)
+        const minX = getMinX(isFirstMeasure);
+        const maxX = getMaxX();
+        const isOutsideBounds =
+          svgPoint.y < MIN_Y ||
+          svgPoint.y > MAX_Y ||
+          svgPoint.x < minX ||
+          svgPoint.x > maxX;
+
+        if (isOutsideBounds) {
+          /**
+           * Delete the note immediately when dragged outside bounds
+           * Show deletion animation at last valid position
+           */
+          if (ghostNote) {
+            setDeletingNote({
+              x: ghostNote.x,
+              y: ghostNote.y,
+              duration: draggedNote.duration,
+            });
+            setTimeout(() => setDeletingNote(null), 400);
+          }
+          deleteNote(measureId, draggedNoteId);
+          setDraggedNoteId(null);
+          setGhostNote(null);
+          setHoveredNoteId(null);
+        } else {
+          // Show ghost at snapped position
+          setGhostNote({
+            x: snappedX,
+            y: snappedY,
+            duration: draggedNote.duration,
+          });
+        }
       }
 
       return;
@@ -381,7 +412,9 @@ function NotePlopper(): ReactNode {
    */
   function handlePreviousMeasure(): void {
     if (!activeTrack) return;
+
     const currentIndex = activeTrack.measures.findIndex(m => m.id === measureId);
+
     if (currentIndex > 0) {
       setActiveMeasure(activeTrack.measures[currentIndex - 1].id);
     }
@@ -392,7 +425,9 @@ function NotePlopper(): ReactNode {
    */
   function handleNextMeasure(): void {
     if (!activeTrack) return;
+
     const currentIndex = activeTrack.measures.findIndex(m => m.id === measureId);
+
     if (currentIndex < activeTrack.measures.length - 1) {
       setActiveMeasure(activeTrack.measures[currentIndex + 1].id);
     }
@@ -403,7 +438,9 @@ function NotePlopper(): ReactNode {
    */
   function handleAddMeasure(): void {
     if (!activeTrack || !activeMeasure) return;
+
     const newMeasureId = addMeasure(activeTrack.id, selectedTimeSignature, activeMeasure.id);
+
     setActiveMeasure(newMeasureId);
   }
 
@@ -436,7 +473,9 @@ function NotePlopper(): ReactNode {
     if (previousMeasureId) {
       setActiveMeasure(previousMeasureId);
     }
-  } const totalMeasures = activeTrack?.measures.length || 0;
+  }
+
+  const totalMeasures = activeTrack?.measures.length || 0;
 
   return (
     <div className="note-plopper utility__container">
@@ -461,6 +500,7 @@ function NotePlopper(): ReactNode {
             <Staff
               notes={measure.notes}
               ghostNote={isActive ? ghostNote : null}
+              deletingNote={isActive ? deletingNote : null}
               timeSignature={measure.timeSignature}
               clef={measure.clef || 'treble'}
               showTimeSignature={measure.number === 1}
