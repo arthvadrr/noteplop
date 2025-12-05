@@ -1,0 +1,56 @@
+@use '../../util/variables' as *;
+
+.notations-bar {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.25rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notation-card {
+  flex: 0 0 auto;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.notation-card:focus {
+  outline: 1px solid #439bac;
+  outline-offset: 2px;
+}
+
+.notation-card.active {
+  background-image: linear-gradient(to right top, #198694, #123940, #193e46, #20444b, #439bac);
+  border: 1px solid #439bac;
+  color: #fff;
+}
+
+.notation-svg {
+  width: 56px;
+  height: 56px;
+}
+
+.notation-label {
+  font-size: 0.7rem;
+  line-height: 1;
+  color: #dcdcdc;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.notations-bar::-webkit-scrollbar {
+  height: 8px;
+}
+
+.notations-bar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}

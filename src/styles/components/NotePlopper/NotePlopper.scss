@@ -1,14 +1,12 @@
 @use '../../util/variables' as *;
-
-// Import all NotePlopper component styles
 @use './_ToolPalette';
 @use './_Staff';
 @use './_MeasureCarousel';
 @use './_MeasureIndicator';
 @use './_MeasureNavigation';
 @use './_MeasureControls';
+@use './_NotationsBar';
 
-// Main container wrapper
 .note-plopper-tool-panel {
   display: flex;
   flex-direction: column;

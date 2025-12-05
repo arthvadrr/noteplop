@@ -65,6 +65,15 @@ export interface ToolPaletteProps {
 }
 
 /**
+ * Reusable Notation type for palette items (plottable elements)
+ * `value` is currently a `NoteDuration` but this allows future extension
+ */
+export type Notation = {
+  value: NoteDuration;
+  label: string;
+};
+
+/**
  * Props for the NoteHead component
  */
 export interface NoteHeadProps {
@@ -73,6 +82,7 @@ export interface NoteHeadProps {
   duration: NoteDuration;
   isGhost?: boolean;
   hideFlag?: boolean;
+  hideLedgerLines?: boolean;
   stemHeight?: number;
   stemDirection?: 'up' | 'down';
   showDurationIndicator?: boolean;

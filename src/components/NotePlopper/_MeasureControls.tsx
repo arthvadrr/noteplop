@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { useState, useRef } from 'react';
+import type { ReactNode } from 'react';
 
 interface MeasureControlsProps {
   isFirstMeasure: boolean;
@@ -20,7 +20,7 @@ export default function MeasureControls({
   onDeleteMeasure,
 }: MeasureControlsProps): ReactNode {
   const [clickedButton, setClickedButton] = useState<string | null>(null);
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClick = (callback: () => void, buttonName: string) => {
     callback();

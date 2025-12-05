@@ -1,5 +1,6 @@
+import NotationsBar from './_NotationsBar';
 import type { ReactNode } from 'react';
-import type { NoteDuration, TimeSignature, Clef } from '../../contexts/ScoreContext/ScoreContext.types';
+import type { TimeSignature, Clef } from '../../contexts/ScoreContext/ScoreContext.types';
 import type { ToolPaletteProps } from './NotePlopper.types';
 
 /**
@@ -16,16 +17,6 @@ const CLEFS: Array<{ value: Clef; label: string }> = [
   { value: 'alto', label: 'Alto' },
 ];
 
-/**
- * Note duration options with their display labels
- */
-const NOTE_DURATIONS: Array<{ value: NoteDuration; label: string }> = [
-  { value: 'sixteenth', label: 'Sixteenth' },
-  { value: 'eighth', label: 'Eighth' },
-  { value: 'quarter', label: 'Quarter' },
-  { value: 'half', label: 'Half' },
-  { value: 'whole', label: 'Whole' },
-];
 
 /**
  * Component for selecting time signature, clef, and note duration
@@ -76,22 +67,10 @@ function ToolPalette({
         </div>
       </div>
 
-      {/* Note Duration Section */}
+      {/* Notations Section */}
       <div className="palette-section">
-        <label className="palette-section-label">Note Duration</label>
-        <div className="palette-section-buttons">
-          {NOTE_DURATIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              className={`note-plopper-tool-btn${selectedDuration === value ? ' active' : ''}`}
-              onClick={() => onSelectDuration(value)}
-              aria-pressed={selectedDuration === value}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <label className="palette-section-label">Notations</label>
+        <NotationsBar selectedDuration={selectedDuration} onSelectDuration={onSelectDuration} />
       </div>
     </div>
   );
