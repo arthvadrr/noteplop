@@ -92,6 +92,7 @@ function NoteHead({
   x,
   y,
   duration,
+  noteId,
   isGhost = false,
   hideFlag = false,
   hideLedgerLines = false,
@@ -144,6 +145,7 @@ function NoteHead({
 
   return (
     <g
+      data-note-id={noteId}
       opacity={opacity}
       onPointerDown={handlePointerDown}
       onPointerEnter={handlePointerEnter}

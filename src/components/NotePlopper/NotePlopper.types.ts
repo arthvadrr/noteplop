@@ -80,6 +80,7 @@ export interface NoteHeadProps {
   x: number;
   y: number;
   duration: NoteDuration;
+  noteId?: string;
   isGhost?: boolean;
   hideFlag?: boolean;
   hideLedgerLines?: boolean;

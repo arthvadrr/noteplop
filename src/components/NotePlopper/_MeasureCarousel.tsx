@@ -29,9 +29,10 @@ export default function MeasureCarousel({
         }}
       >
         {measures.map((measure, index) => (
-          <div 
-            key={measure.id} 
+          <div
+            key={measure.id}
             className="measure-slide"
+            data-measure-id={measure.id}
             style={{ width: `${100 / measures.length}%` }}
           >
             {children(measure, measure.id === activeMeasureId, index)}
