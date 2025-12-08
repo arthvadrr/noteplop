@@ -6,6 +6,7 @@
 @use './_MeasureNavigation';
 @use './_MeasureControls';
 @use './_NotationsBar';
+@use './NoteRotary';
 
 .note-plopper-tool-panel {
   display: flex;

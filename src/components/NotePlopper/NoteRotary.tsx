@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useScore } from '../../contexts/ScoreContext/ScoreContext';
 import type { PlacedNote } from '../../contexts/ScoreContext/ScoreContext.types';
 
@@ -12,8 +12,8 @@ import type { PlacedNote } from '../../contexts/ScoreContext/ScoreContext.types'
  */
 export default function NoteRotary(): React.ReactElement | null {
   const { activeMeasure } = useScore();
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const [positions, setPositions] = useState<Record<string, number>>({});
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   if (!activeMeasure) return null;
 
@@ -29,7 +29,7 @@ export default function NoteRotary(): React.ReactElement | null {
 
       const containerRect = containerRef.current.getBoundingClientRect();
 
-      // Find note elements inside the measure SVG that carry data-note-id
+      // Find note elements inside the measure SVG that carry data-note-id which we use to set posX
       const svg = measureSlide.querySelector('svg');
 
       if (!svg) {
@@ -83,8 +83,10 @@ export default function NoteRotary(): React.ReactElement | null {
 
   if (!activeMeasure) return null;
 
-  // Snap points used by staff (must match the staff's snap grid)
-  // This matches the SNAP_POINTS built in `NotePlopper` (includes duplicates)
+  /**
+   * Snap points used by staff (must match the staff's snap grid)
+   * This matches the SNAP_POINTS built in `NotePlopper` (includes duplicates)
+   */
   const SNAP_POINTS = [
     25,
     62.5,
@@ -111,18 +113,20 @@ export default function NoteRotary(): React.ReactElement | null {
     775,
   ];
 
-  // Pitch name maps from top (small y) -> bottom (large y). Length = 23.
-  // These are diatonic letter names (no accidentals); index 15 corresponds to y=550 (bottom staff line)
+  /**
+   * Pitch name maps from top (small y) -> bottom (large y). Length = 23.
+   * These are diatonic letter names (no accidentals); index 15 corresponds to y=550 (bottom staff line)
+   */
   const trebleMap = [
-    'F','E','D','C','B','A','G','F','E','D','C','B','A','G','F','E','D','C','B','A','G','F','E'
+    'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E'
   ];
 
   const bassMap = [
-    'A','G','F','E','D','C','B','A','G','F','E','D','C','B','A','G','F','E','D','C','B','A','G'
+    'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G'
   ];
 
   const altoMap = [
-    'G','F','E','D','C','B','A','G','F','E','D','C','B','A','G','F','E','D','C','B','A','G','F'
+    'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F', 'E', 'D', 'C', 'B', 'A', 'G', 'F'
   ];
 
   // Helper: map a note Y to the nearest snap point index
@@ -133,6 +137,7 @@ export default function NoteRotary(): React.ReactElement | null {
     for (let i = 0; i < SNAP_POINTS.length; i++) {
       const p = SNAP_POINTS[i];
       const d = Math.abs(p - y);
+
       if (d < bestDist) {
         bestDist = d;
         best = i;
@@ -152,10 +157,6 @@ export default function NoteRotary(): React.ReactElement | null {
     <div
       ref={containerRef}
       className="note-rotary"
-      style={{
-        position: 'relative',
-        pointerEvents: 'none',
-      }}
     >
       {activeMeasure.notes.map((note) => {
         const x = positions[note.id];
@@ -167,15 +168,9 @@ export default function NoteRotary(): React.ReactElement | null {
         return (
           <div
             key={note.id}
+            className="note"
             style={{
-              position: 'absolute',
               left: x,
-              top: 0,
-              transform: 'translateX(-50%) translateY(-100%)',
-              pointerEvents: 'none',
-              color: 'white',
-              fontSize: 12,
-              background: 'transparent',
             }}
           >
             {label}
