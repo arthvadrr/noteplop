@@ -3,6 +3,7 @@ import { useScore } from '../../contexts/ScoreContext/ScoreContext';
 import MeasureNavigation, { MeasureIndicator } from './_MeasureNavigation';
 import MeasureControls from './_MeasureControls';
 import MeasureCarousel from './_MeasureCarousel';
+import NoteRotary from './_NoteCarousel';
 import ToolPalette from './_ToolPalette';
 import Toggle from '../common/Toggle';
 import Staff from './_Staff';
@@ -495,28 +496,31 @@ function NotePlopper(): ReactNode {
             onChange={setShowDurationIndicators}
           />
         </div>
-        <MeasureCarousel measures={measures} activeMeasureId={activeMeasure.id}>
-          {(measure, isActive) => (
-            <Staff
-              notes={measure.notes}
-              ghostNote={isActive ? ghostNote : null}
-              deletingNote={isActive ? deletingNote : null}
-              timeSignature={measure.timeSignature}
-              clef={measure.clef || 'treble'}
-              showTimeSignature={measure.number === 1}
-              showClef={measure.number === 1}
-              isActive={isActive}
-              showDurationIndicators={showDurationIndicators}
-              beatWidth={calculateBeatWidth(measure.number)}
-              onPointerMove={isActive ? handlePointerMove : () => { }}
-              onPointerLeave={isActive ? handlePointerLeave : () => { }}
-              onPointerDown={isActive ? handlePointerDown : () => { }}
-              onNotePointerDown={isActive ? handleNotePointerDown : () => { }}
-              onNotePointerEnter={isActive ? handleNotePointerEnter : () => { }}
-              onNotePointerLeave={isActive ? handleNotePointerLeave : () => { }}
-            />
-          )}
-        </MeasureCarousel>
+        <div className="measure-wrapper" style={{ position: 'relative' }}>
+          <NoteRotary />
+          <MeasureCarousel measures={measures} activeMeasureId={activeMeasure.id}>
+            {(measure, isActive) => (
+              <Staff
+                notes={measure.notes}
+                ghostNote={isActive ? ghostNote : null}
+                deletingNote={isActive ? deletingNote : null}
+                timeSignature={measure.timeSignature}
+                clef={measure.clef || 'treble'}
+                showTimeSignature={measure.number === 1}
+                showClef={measure.number === 1}
+                isActive={isActive}
+                showDurationIndicators={showDurationIndicators}
+                beatWidth={calculateBeatWidth(measure.number)}
+                onPointerMove={isActive ? handlePointerMove : () => { }}
+                onPointerLeave={isActive ? handlePointerLeave : () => { }}
+                onPointerDown={isActive ? handlePointerDown : () => { }}
+                onNotePointerDown={isActive ? handleNotePointerDown : () => { }}
+                onNotePointerEnter={isActive ? handleNotePointerEnter : () => { }}
+                onNotePointerLeave={isActive ? handleNotePointerLeave : () => { }}
+              />
+            )}
+          </MeasureCarousel>
+        </div>
         <MeasureIndicator
           currentMeasureNumber={activeMeasure.number}
           totalMeasures={totalMeasures}

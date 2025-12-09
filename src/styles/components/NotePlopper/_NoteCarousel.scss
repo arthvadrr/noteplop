@@ -1,0 +1,37 @@
+@use '../../util/variables' as *;
+
+.note-rotary {
+  position: relative;
+  height: 3rem;
+  border-bottom: 2px solid #135358;
+  margin: 1.5rem 0;
+  overflow: clip;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: -5px;
+    width: 100%;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(to right,
+        #1b7b8280 0 2px,
+        transparent 2px 22.5px);
+  }
+
+  /* Bottom ticks */
+  &::after {
+    bottom: 0;
+    height: 0.4rem;
+  }
+
+  .note {
+    position: absolute;
+    top: 0.5rem;
+    transform: translateX(-50%); // move to center of note head
+    font-size: 1rem;
+    color: #fff;
+    padding: 0.2rem 0.2rem;
+  }
+}

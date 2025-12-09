@@ -254,6 +254,7 @@ function Staff({
       {unbeamedNotes.map((note) => (
         <NoteHead
           key={note.id}
+          noteId={note.id}
           x={note.x}
           y={note.y}
           duration={note.duration}
@@ -275,6 +276,7 @@ function Staff({
           {groupData.notes.map(({ note, stemHeight }) => (
             <NoteHead
               key={note.id}
+              noteId={note.id}
               x={note.x}
               y={note.y}
               duration={note.duration}
