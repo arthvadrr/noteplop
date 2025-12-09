@@ -3,7 +3,7 @@ import { useScore } from '../../contexts/ScoreContext/ScoreContext';
 import MeasureNavigation, { MeasureIndicator } from './_MeasureNavigation';
 import MeasureControls from './_MeasureControls';
 import MeasureCarousel from './_MeasureCarousel';
-import NoteRotary from './NoteRotary';
+import NoteRotary from './_NoteCarousel';
 import ToolPalette from './_ToolPalette';
 import Toggle from '../common/Toggle';
 import Staff from './_Staff';

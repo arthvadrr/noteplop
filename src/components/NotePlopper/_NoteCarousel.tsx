@@ -4,27 +4,35 @@ import type { PlacedNote } from '../../contexts/ScoreContext/ScoreContext.types'
 
 /**
  * NoteRotary
- * - Renders a relatively-positioned overlay above the measures
- * - Shows note names for notes in the current (active) measure
- * - Positions labels by querying the DOM for rendered note elements and using their X positions
- *
- * Minimal styles for now; positioning is computed from the `.measure-carousel` element.
+ * Shows note names for notes in the current (active) measure
+ * Positions labels by querying the DOM for rendered note elements and using their X positions
  */
 export default function NoteRotary(): React.ReactElement | null {
   const { activeMeasure } = useScore();
   const [positions, setPositions] = useState<Record<string, number>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const rafStartRef = useRef<number | null>(null);
+  const positionsRef = useRef<Record<string, number>>({});
 
   if (!activeMeasure) return null;
 
   useEffect(() => {
-    function computePositions() {
+    function computePositions(): boolean {
       const measureSlide = document.querySelector(`.measure-slide[data-measure-id="${activeMeasure!.id}"]`);
 
       if (!measureSlide || !containerRef.current) {
-        setPositions({});
+        const empty: Record<string, number> = {};
+        const prev = positionsRef.current;
 
-        return;
+        const same = Object.keys(prev).length === 0;
+
+        if (!same) {
+          positionsRef.current = empty;
+          setPositions(empty);
+        }
+
+        return !same;
       }
 
       const containerRect = containerRef.current.getBoundingClientRect();
@@ -33,9 +41,17 @@ export default function NoteRotary(): React.ReactElement | null {
       const svg = measureSlide.querySelector('svg');
 
       if (!svg) {
-        setPositions({});
+        const empty: Record<string, number> = {};
+        const prev = positionsRef.current;
 
-        return;
+        const same = Object.keys(prev).length === 0;
+
+        if (!same) {
+          positionsRef.current = empty;
+          setPositions(empty);
+        }
+
+        return !same;
       }
 
       const noteEls = Array.from(svg.querySelectorAll('[data-note-id]')) as Element[];
@@ -65,18 +81,78 @@ export default function NoteRotary(): React.ReactElement | null {
         next[id] = x;
       });
 
-      setPositions(next);
+      // Compare shallow equality with previous positionsRef to know if anything changed
+      const prev = positionsRef.current;
+
+      let changed = false;
+
+      const prevKeys = Object.keys(prev);
+      const nextKeys = Object.keys(next);
+
+      if (prevKeys.length !== nextKeys.length) {
+        changed = true;
+      } else {
+        for (let i = 0; i < nextKeys.length; i++) {
+          const k = nextKeys[i];
+
+          if (prev[k] !== next[k]) {
+            changed = true;
+            break;
+          }
+        }
+      }
+
+      if (changed) {
+        positionsRef.current = next;
+        setPositions(next);
+      }
+
+      return changed;
     }
 
-    // Compute initially and after a short delay to allow measure carousel transitions
+    // Compute initially and then for a short time using requestAnimationFrame
+    // to allow measure carousel transitions to finish (replaces setTimeout)
     computePositions();
-    const t = setTimeout(computePositions, 300);
+
+    function scheduleRafCompute() {
+      rafStartRef.current = performance.now();
+
+      // Run until positions stop changing. Use a safety cap to avoid an infinite loop.
+      const MAX_FRAMES = 60;
+      let frameCount = 0;
+      let unchangedFrames = 0;
+
+      const loop = (_ts: number) => {
+        frameCount++;
+
+        const changed = computePositions();
+
+        if (!changed) {
+          unchangedFrames++;
+        } else {
+          unchangedFrames = 0;
+        }
+
+        const stopBecauseStable = unchangedFrames >= 2; // two frames of stability
+        const stopBecauseCap = frameCount >= MAX_FRAMES;
+
+        if (!stopBecauseStable && !stopBecauseCap) {
+          rafRef.current = requestAnimationFrame(loop);
+        } else {
+          rafRef.current = null;
+        }
+      };
+
+      rafRef.current = requestAnimationFrame(loop);
+    }
+
+    scheduleRafCompute();
 
     // Recompute on resize
     window.addEventListener('resize', computePositions);
 
     return () => {
-      clearTimeout(t);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', computePositions);
     };
   }, [activeMeasure]);
@@ -84,34 +160,10 @@ export default function NoteRotary(): React.ReactElement | null {
   if (!activeMeasure) return null;
 
   /**
-   * Snap points used by staff (must match the staff's snap grid)
-   * This matches the SNAP_POINTS built in `NotePlopper` (includes duplicates)
+   * These are the positions to map the note names 
+   * We start at 25 for the notehead offset. Then it's 37.5 in between
    */
-  const SNAP_POINTS = [
-    25,
-    62.5,
-    100,
-    137.5,
-    175,
-    212.5,
-    212.5,
-    250,
-    287.5,
-    325,
-    362.5,
-    400,
-    437.5,
-    475,
-    512.5,
-    550,
-    587.5,
-    587.5,
-    625,
-    662.5,
-    700,
-    737.5,
-    775,
-  ];
+  const SNAP_POINTS = Array.from({ length: 21 }, (_, i) => 25 + i * 37.5);
 
   /**
    * Pitch name maps from top (small y) -> bottom (large y). Length = 23.
