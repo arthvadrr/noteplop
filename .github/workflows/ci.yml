@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run tsc --noEmit
+
+      - name: Build
+        run: bun run build
